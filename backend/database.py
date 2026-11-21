@@ -54,7 +54,12 @@ def set_setting(conn: sqlite3.Connection, key: str, value: str) -> None:
 
 
 def _add_missing_columns(conn: sqlite3.Connection) -> None:
-    """Add the phone and notes columns to clients if they are missing.
+    """Add columns that newer versions need, if they are missing.
+
+    - clients: phone and notes.
+    - expenses: title, payment_method and notes. Existing rows get their
+      title copied from description (only where title is still NULL, so
+      running this again changes nothing).
 
     Runs inside init_db()'s transaction. ALTER TABLE ... ADD COLUMN is
     cheap and keeps existing rows intact.
@@ -64,6 +69,16 @@ def _add_missing_columns(conn: sqlite3.Connection) -> None:
         conn.execute("ALTER TABLE clients ADD COLUMN phone TEXT")
     if "notes" not in existing:
         conn.execute("ALTER TABLE clients ADD COLUMN notes TEXT")
+
+    existing = {row["name"] for row in conn.execute("PRAGMA table_info(expenses)")}
+    if "title" not in existing:
+        conn.execute("ALTER TABLE expenses ADD COLUMN title TEXT")
+    if "payment_method" not in existing:
+        conn.execute("ALTER TABLE expenses ADD COLUMN payment_method TEXT")
+    if "notes" not in existing:
+        conn.execute("ALTER TABLE expenses ADD COLUMN notes TEXT")
+    # One-time backfill: old expenses have no title, so use their description.
+    conn.execute("UPDATE expenses SET title = description WHERE title IS NULL")
 
 
 def init_db() -> None:
@@ -104,8 +119,6 @@ def init_db() -> None:
             )
             """
         )
-        # Older databases may lack the phone/notes columns; add them if missing.
-        _add_missing_columns(conn)
 
         # invoices: money we are owed (or have been paid).
         # Amounts are stored in cents to avoid floating-point rounding errors.
@@ -159,6 +172,10 @@ def init_db() -> None:
         # If the flag is missing, this is the first run: seed the data.
         if get_setting(conn, "sample_data_seeded") is None:
             _seed_sample_data(conn)
+
+        # --- 4. Column migrations (after seeding, so seeded expenses get titles)
+        # Adds missing columns to clients and expenses, and backfills titles.
+        _add_missing_columns(conn)
 
         # Commit everything: tables, indexes and seed data together.
         conn.commit()

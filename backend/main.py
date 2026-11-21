@@ -11,6 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 import database
 from routers.clients import router as clients_router
+from routers.expenses import router as expenses_router
 from routers.invoices import router as invoices_router
 
 
@@ -36,6 +37,7 @@ app.add_middleware(
 
 app.include_router(clients_router)
 app.include_router(invoices_router)
+app.include_router(expenses_router)
 
 
 @app.get("/")

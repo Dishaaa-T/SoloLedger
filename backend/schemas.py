@@ -261,3 +261,119 @@ class InvoiceOut(BaseModel):
     def _amount_as_number(self, value: Decimal) -> float:
         return float(value)
 
+
+# ---------------------------------------------------------------------------
+# Expenses
+# ---------------------------------------------------------------------------
+
+# Largest expense amount the API accepts, in INR (major units).
+MAX_EXPENSE_AMOUNT = Decimal("10000000")
+
+# Payment methods an expense may record. None means "not recorded".
+PaymentMethod = Literal["cash", "upi", "card", "bank_transfer", "other"]
+
+
+class ExpenseCreate(BaseModel):
+    """Body for POST /expenses. Title, amount, category and date are required.
+
+    `amount` is in INR (major units), for example 1250.00. The router stores
+    it as integer cents. Status is not accepted here: the router computes it
+    from expense_date.
+    """
+
+    title: str = Field(min_length=1, max_length=120)
+    description: str | None = Field(default=None, max_length=500)
+    amount: Decimal = Field(
+        gt=Decimal("0"),
+        le=MAX_EXPENSE_AMOUNT,
+        decimal_places=2,
+    )
+    category: str = Field(min_length=1, max_length=60)
+    expense_date: date
+    payment_method: PaymentMethod | None = None
+    notes: str | None = Field(default=None, max_length=1000)
+
+    @field_validator("title", "category", mode="before")
+    @classmethod
+    def _strip_required_text(cls, value):
+        if isinstance(value, str):
+            return value.strip()
+        return value
+
+    @field_validator("description", "notes", mode="before")
+    @classmethod
+    def _blank_to_none(cls, value):
+        if isinstance(value, str):
+            value = value.strip()
+            return value or None
+        return value
+
+
+class ExpenseUpdate(BaseModel):
+    """Body for PUT /expenses/{id}. Every field is optional.
+
+    Omitted fields are left unchanged. An explicit null is rejected for title,
+    amount, category and expense_date. It clears description, payment_method
+    and notes.
+    """
+
+    title: str | None = Field(default=None, min_length=1, max_length=120)
+    description: str | None = Field(default=None, max_length=500)
+    amount: Decimal | None = Field(
+        default=None,
+        gt=Decimal("0"),
+        le=MAX_EXPENSE_AMOUNT,
+        decimal_places=2,
+    )
+    category: str | None = Field(default=None, min_length=1, max_length=60)
+    expense_date: date | None = None
+    payment_method: PaymentMethod | None = None
+    notes: str | None = Field(default=None, max_length=1000)
+
+    @field_validator(
+        "title", "amount", "category", "expense_date",
+        mode="before",
+    )
+    @classmethod
+    def _reject_null(cls, value, info):
+        if value is None:
+            raise ValueError(f"{info.field_name} cannot be null")
+        return value
+
+    @field_validator("title", "category", mode="before")
+    @classmethod
+    def _strip_required_text(cls, value):
+        if isinstance(value, str):
+            return value.strip()
+        return value
+
+    @field_validator("description", "notes", mode="before")
+    @classmethod
+    def _blank_to_none(cls, value):
+        if isinstance(value, str):
+            value = value.strip()
+            return value or None
+        return value
+
+
+class ExpenseOut(BaseModel):
+    """An expense as returned by the API.
+
+    `amount` is INR with 2 decimal places. It is sent as a JSON number,
+    for example 1250.0.
+    """
+
+    id: int
+    title: str
+    description: str | None
+    amount: Decimal
+    category: str
+    expense_date: date
+    payment_method: PaymentMethod | None
+    notes: str | None
+    created_at: str
+
+    @field_serializer("amount")
+    def _amount_as_number(self, value: Decimal) -> float:
+        return float(value)
+

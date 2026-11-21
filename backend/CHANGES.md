@@ -194,3 +194,75 @@ Expected: all tests pass, including the client tests from Request 3.
    - POST `/invoices` with `issue_date` 60 days ago and `due_date` 30 days ago returns status "overdue" (or GET it later to confirm).
    - DELETE `/invoices/{id}` returns 204, and a following GET returns 404.
 
+---
+
+## Request 5: Feature 4, Expense management
+
+**Created:**
+- `backend/routers/expenses.py`: endpoints for create, list (with filters), get, update and delete.
+- `backend/tests/test_expenses.py`: automated tests using a temporary database (the real `sololedger.db` is not touched).
+
+**Modified:**
+- `backend/database.py`: `expenses` gets three new columns, `title`, `payment_method` and `notes`, added only if missing. Existing expense rows get their `title` copied from `description` (only where `title` is still empty), so re-running the server changes nothing.
+- `backend/schemas.py`: added `PaymentMethod`, `ExpenseCreate`, `ExpenseUpdate` and `ExpenseOut`. The client and invoice models are unchanged.
+- `backend/main.py`: includes the expenses router next to the clients and invoices routers.
+
+**Behaviour notes:**
+- `amount` is entered and returned in INR (for example `1250.00`), with at most 2 decimal places. It is stored as integer cents (`amount_cents`). It is returned as a JSON number (for example `1250.0`).
+- `status` ("paid" or "upcoming") is computed automatically from `expense_date`: a date today or earlier is "paid", a later date is "upcoming". It is recalculated on every create and update. It is stored in the database; the API responses do not include it.
+- A blank `description` is stored as an empty string and returned as `null`.
+- Category is free text (1 to 60 characters). The list below is the suggested set; the API does not reject other values, because the seeded expenses use older category names.
+- Category filtering ignores case, so `travel` and `Travel` match the same expenses.
+- `GET /expenses` returns newest expense date first.
+
+**Allowed categories (suggested):** Software & Subscriptions, Internet & Utilities, Equipment, Travel, Marketing, Office Supplies, Professional Services, Other
+
+**Payment methods (optional):** cash, upi, card, bank_transfer, other
+
+**Endpoints:**
+
+| Method | Path | Success | Errors |
+|---|---|---|---|
+| POST | `/expenses` | 201 | 422 invalid input |
+| GET | `/expenses` | 200 | optional `category`, `start_date` and `end_date` filters; 422 for a blank category or `start_date` after `end_date` |
+| GET | `/expenses/{expense_id}` | 200 | 404 not found |
+| PUT | `/expenses/{expense_id}` | 200 | 404 not found, 422 invalid input |
+| DELETE | `/expenses/{expense_id}` | 204 | 404 not found |
+
+**Example body (POST /expenses):**
+```json
+{
+  "title": "Figma subscription",
+  "description": "Monthly design tool plan",
+  "amount": 1250.00,
+  "category": "Software & Subscriptions",
+  "expense_date": "2026-05-02",
+  "payment_method": "card",
+  "notes": "Business card ending 4411"
+}
+```
+
+**How to test with automated tests:**
+```
+venv\Scripts\python.exe -m pytest tests -q
+```
+Expected: all tests pass, including the client and invoice tests from earlier requests.
+
+**How to test manually in Swagger UI:**
+1. Start the server:
+   ```
+   venv\Scripts\activate
+   uvicorn main:app --reload
+   ```
+2. Open http://127.0.0.1:8000/docs
+3. Checks to run:
+   - POST `/expenses` with the example body above returns 201.
+   - POST with `"title": "   "` returns 422. POST with `"amount": 0` or `"amount": 10.123` returns 422.
+   - POST with `"payment_method": "bitcoin"` returns 422.
+   - GET `/expenses?category=travel` returns the same results as `category=Travel`.
+   - GET `/expenses?start_date=2026-05-01&end_date=2026-05-31` returns only expenses dated in May 2026.
+   - GET `/expenses?start_date=2026-06-01&end_date=2026-05-01` returns 422.
+   - PUT `/expenses/{id}` with `{"amount": 900}` changes only the amount.
+   - DELETE `/expenses/{id}` returns 204, and a following GET returns 404.
+
+
