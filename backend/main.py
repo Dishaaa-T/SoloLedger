@@ -10,6 +10,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 import database
+from routers.action_centre import router as action_centre_router
 from routers.clients import router as clients_router
 from routers.dashboard import router as dashboard_router
 from routers.expenses import router as expenses_router
@@ -46,6 +47,7 @@ app.include_router(settings_router)
 app.include_router(dashboard_router)
 app.include_router(forecast_router)
 app.include_router(simulator_router)
+app.include_router(action_centre_router)
 
 
 @app.get("/")

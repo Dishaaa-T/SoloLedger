@@ -561,4 +561,81 @@ Expected: all tests pass, including the forecast and dashboard tests from earlie
    - Running the same request twice gives the same result, and `GET /invoices` is unchanged.
 
 
+---
+
+## Request 10: Feature 9, Financial Action Centre
+
+**Created:**
+- `backend/services/action_centre.py`: rule-based alert logic. It reuses the forecast service (90-day cash-flow projection), the dashboard service (`period_bounds` for this and last month) and the settings table. It only runs SELECT queries and never writes.
+- `backend/routers/action_centre.py`: endpoint `GET /action-centre`.
+- `backend/tests/test_action_centre.py`: automated tests using a temporary database (the real `sololedger.db` is not touched). Service tests use a fixed today (2030-01-15).
+
+**Modified:**
+- `backend/schemas.py`: added the Action Centre response models and the priority and category literals. Other models are unchanged.
+- `backend/main.py`: includes the action centre router next to the other routers.
+
+**Endpoint:**
+
+| Method | Path | Success | Errors |
+|---|---|---|---|
+| GET | `/action-centre?priority=critical\|high\|medium\|low&category=overdue_payment\|pending_payment\|low_cash_flow\|negative_cash_flow\|upcoming_expense\|expense_trend` | 200 | 422 for any other `priority` or `category` value, 500 if the database read fails |
+
+Both filters are optional. The summary counts are taken from the filtered alerts, so `summary.total_alerts` always equals `len(alerts)`.
+
+**Alert fields:** `id`, `title`, `description`, `category`, `priority`, `amount` (INR, 2 decimal places), `related_date`, `recommended_action`, `related_invoice_id`, `related_expense_id`, `reason`.
+
+**Summary fields:** `total_alerts`, `critical`, `high`, `medium`, `low`.
+
+**Rules:**
+- Overdue invoices (one alert per invoice): an unpaid invoice whose status is `overdue` or whose due date is before today. Priority is `critical` at 30 or more days overdue; `high` at 7 or more days overdue, or at INR 50,000 or more; otherwise `medium`.
+- Pending payments (one summary alert): unpaid `pending` invoices not yet due. Priority is `medium` if the earliest due date is within 7 days, otherwise `low`. Overdue invoices are not included here.
+- Cash flow: uses the 90-day forecast. A projected balance below zero gives a `critical` `negative_cash_flow` alert. This takes precedence over the low-cash alert, so only one of the two can appear.
+- Low cash: a projected minimum below the threshold gives a `high` `low_cash_flow` alert. The threshold comes from the settings key `low_cash_threshold_cents` (default INR 5,000). This key is read-only here; no API writes it.
+- Upcoming expenses (one alert per expense): `upcoming` expenses dated today through today + 89. Priority is `high` if due within 7 days, otherwise `medium`. Paid expenses and past-dated upcoming expenses are not included.
+- Expense trend: an alert only when last month's total is non-zero and this month's total is at least 20% higher. Priority is `medium`. The recommended action names the category with the largest increase.
+- Sorting: priority (critical, high, medium, low), then earliest related date, then id.
+
+**Example response (illustrative only, not real data):**
+```json
+{
+  "summary": {"total_alerts": 2, "critical": 1, "high": 1, "medium": 0, "low": 0},
+  "alerts": [
+    {
+      "id": "overdue_invoice_3",
+      "title": "Invoice payment overdue",
+      "description": "Invoice INV-2026-004 for Acme Ltd of INR 18,000.00 is 35 day(s) overdue.",
+      "category": "overdue_payment",
+      "priority": "critical",
+      "amount": 18000.0,
+      "related_date": "2026-04-01",
+      "recommended_action": "Escalate: contact Acme Ltd today about invoice INV-2026-004 and agree a payment date.",
+      "related_invoice_id": 3,
+      "related_expense_id": null,
+      "reason": "Unpaid and due date 2026-04-01 is before today 2026-05-06."
+    }
+  ]
+}
+```
+
+**How to test with automated tests:**
+```
+.\venv\Scripts\python.exe -m pytest tests -q
+.\venv\Scripts\python.exe -m pytest tests\test_action_centre.py -q
+```
+Expected: all tests pass, including the simulator, forecast, dashboard and earlier tests.
+
+**How to test manually in Swagger UI:**
+1. Start the server:
+   ```
+   .\venv\Scripts\python.exe -m uvicorn main:app --reload
+   ```
+2. Open http://127.0.0.1:8000/docs
+3. Checks to run:
+   - GET `/action-centre` with no parameters returns 200 with `summary` and `alerts`.
+   - GET `/action-centre?priority=critical` returns only critical alerts, and `summary.total_alerts` equals the number of alerts returned.
+   - GET `/action-centre?category=overdue_payment` returns only overdue payment alerts.
+   - GET `/action-centre?priority=urgent` and `?category=unknown` return 422.
+   - Marking an overdue invoice as paid removes its overdue alert.
+
+
 

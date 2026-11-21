@@ -625,3 +625,54 @@ class WhatIfOut(BaseModel):
     applied_scenarios: list[str]
     daily_forecast: list[WhatIfDayOut]
 
+
+# ---------------------------------------------------------------------------
+# Action Centre
+# ---------------------------------------------------------------------------
+
+# Priority levels for an action alert. "critical" is the most urgent.
+ActionPriority = Literal["critical", "high", "medium", "low"]
+
+# Kinds of alert the Action Centre can raise.
+ActionCategory = Literal[
+    "overdue_payment",
+    "pending_payment",
+    "low_cash_flow",
+    "negative_cash_flow",
+    "upcoming_expense",
+    "expense_trend",
+]
+
+
+class ActionAlertOut(BaseModel):
+    """One Action Centre alert. amount is INR, sent as a JSON number or null."""
+
+    id: str
+    title: str
+    description: str
+    category: ActionCategory
+    priority: ActionPriority
+    amount: float | None
+    related_date: str | None
+    recommended_action: str
+    related_invoice_id: int | None
+    related_expense_id: int | None
+    reason: str
+
+
+class ActionSummaryOut(BaseModel):
+    """Alert counts by priority. Counts match the alerts returned with them."""
+
+    total_alerts: int
+    critical: int
+    high: int
+    medium: int
+    low: int
+
+
+class ActionCentreOut(BaseModel):
+    """The Action Centre result: a summary and the alerts sorted by priority."""
+
+    summary: ActionSummaryOut
+    alerts: list[ActionAlertOut]
+
