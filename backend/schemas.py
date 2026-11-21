@@ -377,3 +377,84 @@ class ExpenseOut(BaseModel):
     def _amount_as_number(self, value: Decimal) -> float:
         return float(value)
 
+
+# ---------------------------------------------------------------------------
+# Settings and cash balance
+# ---------------------------------------------------------------------------
+
+# Largest cash balance the API accepts, in INR (major units).
+MAX_CASH_BALANCE = Decimal("10000000")
+
+
+class SettingsOut(BaseModel):
+    """The freelancer's settings as returned by the API.
+
+    `current_cash` is INR with 2 decimal places. It is sent as a JSON number,
+    for example 4250.0. `updated_at` is the last time the balance was set
+    manually (ISO 8601, UTC), or null if it was never set through the API.
+    """
+
+    current_cash: Decimal
+    currency: str
+    updated_at: str | None
+
+    @field_serializer("current_cash")
+    def _cash_as_number(self, value: Decimal) -> float:
+        return float(value)
+
+
+# GET /settings/balance returns the same fields as GET /settings, so it reuses
+# the same model. A separate class is not needed.
+BalanceOut = SettingsOut
+
+
+class BalanceUpdate(BaseModel):
+    """Body for PUT /settings/balance. `current_cash` is required.
+
+    Integers and decimals with at most 2 places are accepted (65000 or
+    65000.50). Null is rejected. Extra fields such as `currency` are rejected,
+    because the currency cannot be changed here.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    current_cash: Decimal
+
+    @field_validator("current_cash", mode="after")
+    @classmethod
+    def _check_balance(cls, value: Decimal) -> Decimal:
+        if not value.is_finite():
+            raise ValueError("Current cash balance must be a number.")
+        if value < 0:
+            raise ValueError("Current cash balance cannot be negative.")
+        if value > MAX_CASH_BALANCE:
+            raise ValueError("Current cash balance is too large.")
+        if value != value.quantize(Decimal("0.01")):
+            raise ValueError("Amount can have at most 2 decimal places.")
+        return value
+
+
+# ---------------------------------------------------------------------------
+# Dashboard
+# ---------------------------------------------------------------------------
+
+# Periods the dashboard summary accepts. Any other value is rejected with 422.
+DashboardPeriod = Literal["this_month", "last_month", "all_time"]
+
+
+class DashboardSummaryOut(BaseModel):
+    """The financial dashboard summary as returned by the API.
+
+    All money fields are INR with 2 decimal places, sent as JSON numbers
+    (for example 45000.0). net_profit can be negative.
+    """
+
+    period: str
+    currency: str
+    total_income: float
+    total_expenses: float
+    net_profit: float
+    pending_payments: float
+    overdue_payments: float
+    available_cash: float
+

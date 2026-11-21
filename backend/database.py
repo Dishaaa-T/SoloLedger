@@ -173,6 +173,10 @@ def init_db() -> None:
         if get_setting(conn, "sample_data_seeded") is None:
             _seed_sample_data(conn)
 
+        # Preferred currency. Fixed to INR for now; set only if missing.
+        if get_setting(conn, "currency") is None:
+            set_setting(conn, "currency", "INR")
+
         # --- 4. Column migrations (after seeding, so seeded expenses get titles)
         # Adds missing columns to clients and expenses, and backfills titles.
         _add_missing_columns(conn)

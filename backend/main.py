@@ -11,8 +11,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 import database
 from routers.clients import router as clients_router
+from routers.dashboard import router as dashboard_router
 from routers.expenses import router as expenses_router
 from routers.invoices import router as invoices_router
+from routers.settings import router as settings_router
 
 
 @asynccontextmanager
@@ -38,6 +40,8 @@ app.add_middleware(
 app.include_router(clients_router)
 app.include_router(invoices_router)
 app.include_router(expenses_router)
+app.include_router(settings_router)
+app.include_router(dashboard_router)
 
 
 @app.get("/")

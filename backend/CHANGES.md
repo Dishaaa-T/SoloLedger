@@ -266,3 +266,145 @@ Expected: all tests pass, including the client and invoice tests from earlier re
    - DELETE `/expenses/{id}` returns 204, and a following GET returns 404.
 
 
+---
+
+## Request 6: Feature 5, Settings and cash balance
+
+**Created:**
+- `backend/routers/settings.py`: endpoints to read settings, read the cash balance and update the cash balance.
+- `backend/tests/test_settings.py`: automated tests using a temporary database (the real `sololedger.db` is not touched).
+
+**Modified:**
+- `backend/database.py`: `init_db()` sets `currency` to `INR` if it is missing. Nothing else changed.
+- `backend/schemas.py`: added `SettingsOut`, `BalanceOut` (an alias of `SettingsOut`, since both have the same fields) and `BalanceUpdate`. Other models are unchanged.
+- `backend/main.py`: includes the settings router next to the other routers.
+
+**Storage (existing `settings` table, no new table):**
+
+| Key | Value |
+|---|---|
+| `cash_balance_cents` | Balance in cents as a string, for example `"425000"` (seeded as 4250.00 INR) |
+| `currency` | `"INR"` |
+| `balance_updated_at` | ISO 8601 UTC time of the last manual update. Not set on a fresh database, so it is `null` until the balance is updated through the API. |
+
+**Behaviour notes:**
+- The balance is entered by hand. Creating, updating or deleting invoices and expenses does not change it.
+- `current_cash` is INR with 2 decimal places, returned as a JSON number (for example `4250.0`).
+- Currency is fixed to INR. There is no endpoint to change it. A request body that includes `currency` (or any other extra field) is rejected with 422.
+- `PUT /settings/balance` accepts integers and decimals with at most 2 places. Negative values, values above 10,000,000, more than 2 decimal places, null, and non-numbers are rejected with 422.
+- A missing `cash_balance_cents` is read as 0.
+
+**Endpoints:**
+
+| Method | Path | Success | Errors |
+|---|---|---|---|
+| GET | `/settings` | 200 | |
+| GET | `/settings/balance` | 200 | |
+| PUT | `/settings/balance` | 200 | 422 invalid input, 500 if the database write fails |
+
+**Example body (PUT /settings/balance):**
+```json
+{
+  "current_cash": 65000
+}
+```
+
+**Example response:**
+```json
+{
+  "current_cash": 65000.0,
+  "currency": "INR",
+  "updated_at": "2026-05-20T10:15:00+00:00"
+}
+```
+
+**How to test with automated tests:**
+```
+venv\Scripts\python.exe -m pytest tests -q
+```
+Expected: all tests pass, including the client, invoice and expense tests from earlier requests.
+
+**How to test manually in Swagger UI:**
+1. Start the server:
+   ```
+   venv\Scripts\activate
+   uvicorn main:app --reload
+   ```
+2. Open http://127.0.0.1:8000/docs
+3. Checks to run:
+   - GET `/settings/balance` returns 200 with `current_cash` 4250.0 on a fresh database.
+   - PUT `/settings/balance` with the example body returns 200, and a following GET returns 65000.0.
+   - PUT with `"current_cash": -1` or `"current_cash": 10.123` returns 422.
+   - PUT with `"current_cash": 100, "currency": "USD"` returns 422.
+   - Creating an expense does not change the balance.
+
+
+---
+
+## Request 7: Feature 6, Smart financial dashboard API
+
+**Created:**
+- `backend/routers/dashboard.py`: endpoint `GET /dashboard/summary`.
+- `backend/services/__init__.py`: empty package marker.
+- `backend/services/dashboard.py`: period boundaries and SQL aggregation for every metric.
+- `backend/tests/test_dashboard.py`: automated tests using a temporary database (the real `sololedger.db` is not touched). Each test deletes the seeded sample rows first, then inserts its own rows.
+
+**Modified:**
+- `backend/schemas.py`: added `DashboardPeriod` (a Literal) and `DashboardSummaryOut`. Other models are unchanged.
+- `backend/main.py`: includes the dashboard router next to the other routers.
+
+**Endpoint:**
+
+| Method | Path | Success | Errors |
+|---|---|---|---|
+| GET | `/dashboard/summary?period=this_month\|last_month\|all_time` | 200 | 422 for any other period value (default `this_month`), 500 if the database read fails |
+
+**Metric definitions (all values are INR, 2 decimal places, JSON numbers):**
+- `total_income`: paid invoices, by `paid_date`, inside the period.
+- `total_expenses`: all recorded expenses (both `paid` and `upcoming` statuses), by `expense_date`, inside the period.
+- `net_profit`: `total_income` minus `total_expenses`. Can be negative.
+- `pending_payments`: every unpaid invoice (status `pending` or `overdue`), all time, not filtered by period.
+- `overdue_payments`: unpaid invoices that are marked `overdue` or whose `due_date` is before today, all time. Paid invoices never count. This is a subset of `pending_payments`.
+- `available_cash`: the cash balance stored in settings. It is not computed from invoices or expenses.
+
+**Period rules:**
+- `this_month`: first to last day of the current month.
+- `last_month`: first to last day of the previous month (January goes back to December of the previous year).
+- `all_time`: no date filter.
+
+**Example response (example only, not real data):**
+```json
+{
+  "period": "this_month",
+  "currency": "INR",
+  "total_income": 45000.0,
+  "total_expenses": 12000.0,
+  "net_profit": 33000.0,
+  "pending_payments": 18000.0,
+  "overdue_payments": 5000.0,
+  "available_cash": 65000.0
+}
+```
+
+**How to test with automated tests:**
+```
+venv\Scripts\python.exe -m pytest tests -q
+```
+Expected: all tests pass, including the client, invoice, expense and settings tests from earlier requests.
+
+**How to test manually in Swagger UI:**
+1. Start the server:
+   ```
+   venv\Scripts\activate
+   uvicorn main:app --reload
+   ```
+2. Open http://127.0.0.1:8000/docs
+3. Checks to run:
+   - GET `/dashboard/summary` with no parameters returns 200 and `period` "this_month".
+   - GET `/dashboard/summary?period=last_month` and `?period=all_time` return 200.
+   - GET `/dashboard/summary?period=next_year` returns 422.
+   - Marking an invoice as paid changes `total_income` and `pending_payments` for the current period.
+   - Creating an expense changes `total_expenses` and `net_profit` only.
+   - Changing the cash balance with `PUT /settings/balance` changes `available_cash` only.
+
+
