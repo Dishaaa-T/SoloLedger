@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "createdAt": "2026-11-21T11:51:51.443Z",
-  "updatedAt": "2026-11-21T14:59:03.239Z",
+  "updatedAt": "2026-11-21T15:12:45.824Z",
   "phases": {
     "architecture": {
       "updatedAt": "2026-11-21T14:58:50.253Z",
@@ -12,19 +12,19 @@
       "committed": true
     },
     "apis": {
-      "updatedAt": "2026-11-21T14:50:23.884Z",
-      "committed": false
+      "updatedAt": "2026-11-21T15:11:43.082Z",
+      "committed": true
     },
     "schema": {
-      "updatedAt": "2026-11-21T14:50:24.208Z",
-      "committed": false
+      "updatedAt": "2026-11-21T15:11:50.553Z",
+      "committed": true
     },
     "ble": {
-      "updatedAt": "2026-11-21T14:54:16.511Z",
-      "committed": false
+      "updatedAt": "2026-11-21T15:12:45.824Z",
+      "committed": true
     },
     "stack": {
-      "updatedAt": "2026-11-21T14:53:31.815Z",
+      "updatedAt": "2026-11-21T15:11:33.888Z",
       "committed": true
     },
     "persona": {
@@ -38,6 +38,10 @@
     "brand-guided": {
       "updatedAt": "2026-11-21T14:59:03.239Z",
       "committed": false
+    },
+    "atlas": {
+      "updatedAt": "2026-11-21T15:11:57.300Z",
+      "committed": true
     }
   },
   "settings": {},
@@ -56,7 +60,7 @@
     "apis": {
       "hash": "fda17b42ea971d14",
       "builtFrom": {
-        "prd": "9d848b0fb3d42d21"
+        "prd": "225c37f55089ceb0"
       }
     },
     "schema": {
@@ -94,6 +98,17 @@
       "hash": "14c00b2945af3cd7",
       "builtFrom": {
         "prd": "225c37f55089ceb0"
+      }
+    },
+    "atlas": {
+      "hash": "40ef6ad1152af196",
+      "builtFrom": {
+        "prd": "225c37f55089ceb0",
+        "persona": "5e563b19d6fc0704",
+        "stack": "a43f1be7b52d5edb",
+        "apis": "fda17b42ea971d14",
+        "ble": "0682986bc86a3886",
+        "schema": "23cc3e3d39e25a14"
       }
     }
   }

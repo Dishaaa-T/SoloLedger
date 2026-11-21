@@ -126,3 +126,71 @@ Expected: all tests pass (15 passed, with one harmless deprecation warning from 
 ## Known limitations
 - Live server and Swagger checks have not been run by the developer yet; the automated tests cover the same endpoints.
 - Email uniqueness relies on the database `UNIQUE` constraint, so duplicates return 409.
+
+---
+
+## Request 4: Feature 3, Invoice management
+
+**Created:**
+- `backend/routers/invoices.py`: endpoints for create, list (with filters), get, update, delete and mark-paid.
+- `backend/tests/test_invoices.py`: automated tests using a temporary database (the real `sololedger.db` is not touched).
+
+**Modified:**
+- `backend/schemas.py`: added `InvoiceCreate`, `InvoiceUpdate`, `MarkPaidRequest`, `ClientSummary` and `InvoiceOut`. The existing client models are unchanged.
+- `backend/main.py`: includes the invoices router next to the clients router.
+
+**Behaviour notes:**
+- `amount` is entered and returned in INR (for example `25000.00`), with at most 2 decimal places. It is stored as integer cents (`amount_cents`). It is returned as a JSON number (for example `25000.0`).
+- Each invoice response includes a nested `client` object (id, name, email, company).
+- Overdue status is refreshed automatically on every read and write: a `pending` invoice whose `due_date` is before today becomes `overdue`. `paid` invoices are never changed.
+- Creating an invoice with a past due date sets its status to `overdue` straight away.
+- `POST /invoices/{id}/mark-paid` with no body sets `paid_date` to today.
+- Cash balances and the settings table are not changed by invoice endpoints.
+
+**Endpoints:**
+
+| Method | Path | Success | Errors |
+|---|---|---|---|
+| POST | `/invoices` | 201 | 404 client not found, 409 duplicate invoice number, 422 invalid input |
+| GET | `/invoices` | 200 | optional `status` (pending, paid, overdue) and `client_id` filters |
+| GET | `/invoices/{invoice_id}` | 200 | 404 not found |
+| PUT | `/invoices/{invoice_id}` | 200 | 404 not found or client not found, 409 duplicate invoice number, 422 invalid input or due date before issue date |
+| DELETE | `/invoices/{invoice_id}` | 204 | 404 not found |
+| POST | `/invoices/{invoice_id}/mark-paid` | 200 | 404 not found, 409 already paid, 422 payment date before issue date |
+
+**Example body (POST /invoices):**
+```json
+{
+  "client_id": 1,
+  "invoice_number": "INV-2026-100",
+  "description": "Logo redesign",
+  "amount": 25000.00,
+  "issue_date": "2026-05-01",
+  "due_date": "2026-05-31"
+}
+```
+
+**How to test with automated tests:**
+```
+venv\Scripts\python.exe -m pytest tests -q
+```
+Expected: all tests pass, including the client tests from Request 3.
+
+**How to test manually in Swagger UI:**
+1. Start the server:
+   ```
+   venv\Scripts\activate
+   uvicorn main:app --reload
+   ```
+2. Open http://127.0.0.1:8000/docs
+3. Checks to run:
+   - POST `/invoices` with the example body above returns 201 and `status` "pending" (use a future due date).
+   - POST with `"amount": 0` returns 422. POST with `"amount": 10.123` returns 422.
+   - POST with a `client_id` that does not exist (for example 9999) returns 404.
+   - POST the same `invoice_number` twice returns 409 on the second call.
+   - GET `/invoices?status=pending` returns only pending invoices.
+   - PUT `/invoices/{id}` with `{"description": "New text"}` changes only the description.
+   - POST `/invoices/{id}/mark-paid` with no body returns 200, `status` "paid", and today's `paid_date`. Repeating it returns 409.
+   - POST `/invoices` with `issue_date` 60 days ago and `due_date` 30 days ago returns status "overdue" (or GET it later to confirm).
+   - DELETE `/invoices/{id}` returns 204, and a following GET returns 404.
+

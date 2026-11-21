@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "items": [],
+  "leftOut": {
+    "at": "2026-11-21T15:12:11.399Z",
+    "items": [
+      {
+        "id": "bl-mwqjqv0o-2",
+        "title": "View, edit and manage the client list",
+        "detail": "The PRD lists \"Manage clients\" as a core capability, but the plan only covers adding a client. Users need to see their clients, update their details, and find a client's invoices.",
+        "step": "pages",
+        "source": "plan",
+        "priority": "medium",
+        "effort": "M",
+        "tokens": 120049,
+        "status": "open"
+      },
+      {
+        "id": "bl-mwqjqv0o-3",
+        "title": "Send a payment reminder for an unpaid invoice after user approval",
+        "detail": "The PRD's non-goals say reminders must not send automatically without user approval, which implies the user can send one manually. The plan has no way to send an email reminder for an outstanding invoice.",
+        "step": "apis",
+        "source": "plan",
+        "priority": "medium",
+        "effort": "M",
+        "tokens": 120058,
+        "status": "open"
+      }
+    ],
+    "deferred": []
+  }
+}
