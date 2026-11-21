@@ -16,6 +16,7 @@ from routers.expenses import router as expenses_router
 from routers.forecast import router as forecast_router
 from routers.invoices import router as invoices_router
 from routers.settings import router as settings_router
+from routers.simulator import router as simulator_router
 
 
 @asynccontextmanager
@@ -44,6 +45,7 @@ app.include_router(expenses_router)
 app.include_router(settings_router)
 app.include_router(dashboard_router)
 app.include_router(forecast_router)
+app.include_router(simulator_router)
 
 
 @app.get("/")

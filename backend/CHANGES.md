@@ -483,4 +483,82 @@ Expected: all tests pass, including the client, invoice, expense, settings and d
    - Marking an invoice as paid removes its income from the forecast.
    - Changing the cash balance with `PUT /settings/balance` changes `starting_balance` and every projected balance.
 
+---
+
+## Request 9: Feature 8, What-if financial simulator
+
+**Created:**
+- `backend/services/simulator.py`: rule-based what-if logic. It reads invoices, expenses and settings, builds a baseline forecast, applies scenarios to in-memory copies of the event lists, and projects both. It never writes to the database.
+- `backend/routers/simulator.py`: `POST /simulator/what-if`. It converts the body and maps `SimulationError` and `ValueError` to HTTP errors.
+- `backend/tests/test_simulator.py`: automated tests using a temporary database (the real `sololedger.db` is not touched).
+
+**Modified:**
+- `backend/schemas.py`: added `SimExpenseInput`, `SimIncomeInput`, `WhatIfRequest`, `ProjectionSummaryOut`, `WhatIfDayOut` and `WhatIfOut`. Existing models are unchanged.
+- `backend/services/forecast.py`: the daily projection loop moved into `project_cashflow()`, so the simulator and the forecast share it. `build_cashflow_forecast()` returns the same output as before.
+- `backend/main.py`: includes the simulator router.
+
+**Scenarios:**
+- A. Delayed client payment (`delay_invoice_id` + `delay_days`, 1 to 90): moves that invoice's collection date later in the simulated list only. The invoice row is not modified. A paid invoice is rejected with 422; a missing invoice with 404.
+- B. Unexpected expense (`unexpected_expense`: amount, date): added to the simulated expense list only.
+- C. Additional income (`additional_income`: amount, date): added to the simulated income list only.
+- Dates for B and C must be between today and the last day of the window (422 otherwise).
+
+**Rules:**
+- `forecast_days` must be 30, 60 or 90.
+- At least one scenario is required (422 otherwise).
+- `difference` = simulated closing balance minus baseline closing balance (INR).
+- `risk_of_negative_balance` refers to the simulated projection.
+- Nothing is written to SQLite.
+
+**Request example:**
+```json
+{
+  "delay_invoice_id": 1,
+  "delay_days": 15,
+  "unexpected_expense": {"amount": 5000, "date": "2026-06-05"},
+  "additional_income": {"amount": 10000, "date": "2026-06-10"},
+  "forecast_days": 30
+}
+```
+Use dates inside the next 30 days when you try it.
+
+**Response shape (illustrative only, not real data):**
+```json
+{
+  "currency": "INR",
+  "forecast_days": 30,
+  "baseline": {"closing_balance": 0.0, "lowest_balance": 0.0, "lowest_balance_date": "2026-06-01", "risk_of_negative_balance": false},
+  "simulated": {"closing_balance": 0.0, "lowest_balance": 0.0, "lowest_balance_date": "2026-06-01", "risk_of_negative_balance": false},
+  "difference": 0.0,
+  "risk_of_negative_balance": false,
+  "applied_scenarios": ["delay_payment", "unexpected_expense", "additional_income"],
+  "daily_forecast": [
+    {"date": "2026-06-01", "baseline_balance": 0.0, "simulated_balance": 0.0, "baseline_income": 0.0, "baseline_expenses": 0.0, "simulated_income": 0.0, "simulated_expenses": 0.0}
+  ]
+}
+```
+
+**How to test with automated tests:**
+```
+.\venv\Scripts\python.exe -m pytest tests -q
+.\venv\Scripts\python.exe -m pytest tests\test_simulator.py -q
+```
+Expected: all tests pass, including the forecast and dashboard tests from earlier requests.
+
+**How to test manually in Swagger UI:**
+1. Start the server:
+   ```
+   .\venv\Scripts\python.exe -m uvicorn main:app --reload
+   ```
+2. Open http://127.0.0.1:8000/docs
+3. Checks to run:
+   - POST `/simulator/what-if` with only `unexpected_expense` returns 200 and `applied_scenarios` `["unexpected_expense"]`.
+   - POST `{}` returns 422.
+   - `delay_days` 0 or 91 returns 422.
+   - `forecast_days` 45 returns 422.
+   - An expense dated yesterday returns 422.
+   - A `delay_invoice_id` of a paid invoice returns 422; id 9999 returns 404.
+   - Running the same request twice gives the same result, and `GET /invoices` is unchanged.
+
+
 

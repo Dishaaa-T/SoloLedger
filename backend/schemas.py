@@ -496,3 +496,132 @@ class CashflowForecastOut(BaseModel):
     risk_of_negative_balance: bool
     daily_forecast: list[ForecastDayOut]
 
+
+
+# ---------------------------------------------------------------------------
+# What-if simulator
+# ---------------------------------------------------------------------------
+
+# Largest scenario amount the API accepts, in INR (major units).
+MAX_SIM_AMOUNT = Decimal("10000000")
+
+
+def _check_sim_amount(value: Decimal) -> Decimal:
+    """Check a scenario amount: finite, above zero, at most 2 places, not too large."""
+    if not value.is_finite():
+        raise ValueError("Amount must be a number.")
+    if value <= 0:
+        raise ValueError("Amount must be greater than zero.")
+    if value > MAX_SIM_AMOUNT:
+        raise ValueError("Amount cannot be greater than 10000000.")
+    if value != value.quantize(Decimal("0.01")):
+        raise ValueError("Amount can have at most 2 decimal places.")
+    return value
+
+
+class SimExpenseInput(BaseModel):
+    """A hypothetical one-off expense for the what-if simulator. Amount is INR."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    amount: Decimal
+    date: date
+
+    @field_validator("amount", mode="after")
+    @classmethod
+    def _check_amount(cls, value: Decimal) -> Decimal:
+        return _check_sim_amount(value)
+
+
+class SimIncomeInput(BaseModel):
+    """A hypothetical extra income for the what-if simulator. Amount is INR."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    amount: Decimal
+    date: date
+
+    @field_validator("amount", mode="after")
+    @classmethod
+    def _check_amount(cls, value: Decimal) -> Decimal:
+        return _check_sim_amount(value)
+
+
+class WhatIfRequest(BaseModel):
+    """Body for the what-if simulator. At least one scenario must be given.
+
+    A payment delay needs both delay_invoice_id and delay_days. The other two
+    scenarios are optional on their own.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    delay_invoice_id: int | None = Field(default=None, gt=0)
+    delay_days: int | None = None
+    unexpected_expense: SimExpenseInput | None = None
+    additional_income: SimIncomeInput | None = None
+    forecast_days: Literal[30, 60, 90] = 30
+
+    @field_validator("delay_days", mode="after")
+    @classmethod
+    def _check_delay_days(cls, value: int | None) -> int | None:
+        if value is not None and not 1 <= value <= 90:
+            raise ValueError("delay_days must be between 1 and 90.")
+        return value
+
+    @model_validator(mode="after")
+    def _check_scenarios(self):
+        has_delay_id = self.delay_invoice_id is not None
+        has_delay_days = self.delay_days is not None
+        if has_delay_id != has_delay_days:
+            raise ValueError(
+                "delay_invoice_id and delay_days must be provided together."
+            )
+        if not (
+            has_delay_id
+            or self.unexpected_expense is not None
+            or self.additional_income is not None
+        ):
+            raise ValueError(
+                "Provide at least one scenario: a payment delay, an unexpected "
+                "expense or additional income."
+            )
+        return self
+
+
+class ProjectionSummaryOut(BaseModel):
+    """Summary of one projected balance path. Money is INR, sent as a number."""
+
+    closing_balance: float
+    lowest_balance: float
+    lowest_balance_date: str
+    risk_of_negative_balance: bool
+
+
+class WhatIfDayOut(BaseModel):
+    """One day of the baseline and simulated forecast. Money is INR."""
+
+    date: str
+    baseline_balance: float
+    simulated_balance: float
+    baseline_income: float
+    baseline_expenses: float
+    simulated_income: float
+    simulated_expenses: float
+
+
+class WhatIfOut(BaseModel):
+    """The what-if simulation result as returned by the API.
+
+    difference is simulated closing balance minus baseline closing balance.
+    """
+
+    currency: str
+    forecast_days: int
+    baseline: ProjectionSummaryOut
+    simulated: ProjectionSummaryOut
+    difference: float
+    risk_of_negative_balance: bool
+    applied_scenarios: list[str]
+    daily_forecast: list[WhatIfDayOut]
+

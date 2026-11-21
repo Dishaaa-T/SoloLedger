@@ -102,24 +102,31 @@ def _read_starting_cents(conn: sqlite3.Connection) -> int:
     return int(database.get_setting(conn, "cash_balance_cents") or "0")
 
 
-def build_cashflow_forecast(conn: sqlite3.Connection, days: int, today: date) -> dict:
-    """Build the day-by-day cash-flow forecast for `days` days from `today`.
+def project_cashflow(
+    starting_cents: int,
+    income_events: list[tuple[str, int, int]],
+    expense_events: list[tuple[str, int, int]],
+    days: int,
+    today: date,
+) -> dict:
+    """Project the daily balance for `days` days from `today`. Pure: no DB access.
 
-    Returns a dict that matches CashflowForecastOut. Money values are INR
-    floats with 2 decimal places. Raises ValueError if days is not 30, 60 or 90.
+    income_events and expense_events are (date_iso, cents, id) tuples as returned
+    by collect_income_events and collect_expense_events. Events outside the
+    window never match a daily entry, so they are ignored.
+
+    Returns the forecast dict without the "currency" key; the caller adds it.
+    Raises ValueError if days is not 30, 60 or 90.
     """
     if days not in ALLOWED_FORECAST_DAYS:
         raise ValueError("days must be 30, 60 or 90.")
 
     window_dates = [today + timedelta(days=offset) for offset in range(days)]
-    window_end = window_dates[-1]
 
-    # Events outside the window never match a daily entry, so they are ignored.
-    income_by_day = _sum_by_date(collect_income_events(conn, today))
-    expenses_by_day = _sum_by_date(collect_expense_events(conn, today, window_end))
+    income_by_day = _sum_by_date(income_events)
+    expenses_by_day = _sum_by_date(expense_events)
 
-    balance = _read_starting_cents(conn)
-    starting_cents = balance
+    balance = starting_cents
     total_income = 0
     total_expenses = 0
     lowest_cents: int | None = None
@@ -151,7 +158,6 @@ def build_cashflow_forecast(conn: sqlite3.Connection, days: int, today: date) ->
 
     return {
         "starting_balance": _cents_to_inr(starting_cents),
-        "currency": database.get_setting(conn, "currency") or "INR",
         "forecast_days": days,
         "expected_income": _cents_to_inr(total_income),
         "expected_expenses": _cents_to_inr(total_expenses),
@@ -161,3 +167,34 @@ def build_cashflow_forecast(conn: sqlite3.Connection, days: int, today: date) ->
         "risk_of_negative_balance": risk,
         "daily_forecast": daily,
     }
+
+
+def build_cashflow_forecast(conn: sqlite3.Connection, days: int, today: date) -> dict:
+    """Build the day-by-day cash-flow forecast for `days` days from `today`.
+
+    Returns a dict that matches CashflowForecastOut. Money values are INR
+    floats with 2 decimal places. Raises ValueError if days is not 30, 60 or 90.
+    """
+    if days not in ALLOWED_FORECAST_DAYS:
+        raise ValueError("days must be 30, 60 or 90.")
+
+    window_end = today + timedelta(days=days - 1)
+    income_events = collect_income_events(conn, today)
+    expense_events = collect_expense_events(conn, today, window_end)
+    projection = project_cashflow(
+        _read_starting_cents(conn), income_events, expense_events, days, today
+    )
+
+    return {
+        "starting_balance": projection["starting_balance"],
+        "currency": database.get_setting(conn, "currency") or "INR",
+        "forecast_days": projection["forecast_days"],
+        "expected_income": projection["expected_income"],
+        "expected_expenses": projection["expected_expenses"],
+        "projected_closing_balance": projection["projected_closing_balance"],
+        "lowest_projected_balance": projection["lowest_projected_balance"],
+        "lowest_balance_date": projection["lowest_balance_date"],
+        "risk_of_negative_balance": projection["risk_of_negative_balance"],
+        "daily_forecast": projection["daily_forecast"],
+    }
+
