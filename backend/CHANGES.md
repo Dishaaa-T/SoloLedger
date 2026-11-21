@@ -407,4 +407,80 @@ Expected: all tests pass, including the client, invoice, expense and settings te
    - Creating an expense changes `total_expenses` and `net_profit` only.
    - Changing the cash balance with `PUT /settings/balance` changes `available_cash` only.
 
+---
+
+## Request 8: Feature 7, Cash-flow forecasting (30/60/90 days)
+
+**Created:**
+- `backend/services/forecast.py`: pure forecast logic (no FastAPI). Collects income and expense events, runs the daily balance loop in integer cents.
+- `backend/routers/forecast.py`: endpoint `GET /forecast/cashflow`.
+- `backend/tests/test_forecast.py`: automated tests using a temporary database (the real `sololedger.db` is not touched). Arithmetic tests use a fixed "today" (2030-01-01).
+
+**Modified:**
+- `backend/schemas.py`: added `FORECAST_DAYS`, `ForecastDayOut` and `CashflowForecastOut`. Other models are unchanged.
+- `backend/main.py`: includes the forecast router next to the other routers.
+
+**Endpoint:**
+
+| Method | Path | Success | Errors |
+|---|---|---|---|
+| GET | `/forecast/cashflow?days=30\|60\|90` | 200 | 422 for any other `days` value (default `30`), 500 if the database read fails |
+
+`days` is validated manually in the router (not with a Literal), so the error message is exactly `days must be one of 30, 60, 90.`.
+
+**Formula:**
+- Window: today through today + days - 1.
+- Projected balance(day) = balance(previous day) + income(day) - expenses(day).
+- The starting balance is the `cash_balance_cents` setting (missing counts as 0).
+
+**Assumptions:**
+- Pending invoices are collected on their `due_date`.
+- Overdue invoices (status `overdue`, or a pending invoice whose due date is before today) are collected on today + 7 days.
+- Paid invoices are never counted.
+- Only `upcoming` expenses dated today or later, inside the window, are counted. Their date is `expense_date`.
+- `paid` expenses are never counted.
+- No recurring expenses are invented.
+
+**Limitation:**
+- An `upcoming` expense dated before today is not counted, because it is treated as historical. If a bill is overdue but still marked `upcoming`, it will not appear in the forecast.
+
+**Example response (illustrative only, not real data):**
+```json
+{
+  "starting_balance": 65000.0,
+  "currency": "INR",
+  "forecast_days": 30,
+  "expected_income": 18000.0,
+  "expected_expenses": 12000.0,
+  "projected_closing_balance": 71000.0,
+  "lowest_projected_balance": 53000.0,
+  "lowest_balance_date": "2026-06-05",
+  "risk_of_negative_balance": false,
+  "daily_forecast": [
+    {"date": "2026-06-01", "expected_income": 0.0, "expected_expenses": 0.0, "projected_balance": 65000.0}
+  ]
+}
+```
+
+**How to test with automated tests:**
+```
+venv\Scripts\python.exe -m pytest tests -q
+venv\Scripts\python.exe -m pytest tests\test_forecast.py -q
+```
+Expected: all tests pass, including the client, invoice, expense, settings and dashboard tests from earlier requests.
+
+**How to test manually in Swagger UI:**
+1. Start the server:
+   ```
+   venv\Scripts\activate
+   uvicorn main:app --reload
+   ```
+2. Open http://127.0.0.1:8000/docs
+3. Checks to run:
+   - GET `/forecast/cashflow` with no parameters returns 200 and `forecast_days` 30.
+   - GET `/forecast/cashflow?days=60` and `?days=90` return 200 with 60 and 90 `daily_forecast` entries.
+   - GET `/forecast/cashflow?days=45` returns 422.
+   - Marking an invoice as paid removes its income from the forecast.
+   - Changing the cash balance with `PUT /settings/balance` changes `starting_balance` and every projected balance.
+
 

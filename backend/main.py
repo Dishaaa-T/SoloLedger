@@ -13,6 +13,7 @@ import database
 from routers.clients import router as clients_router
 from routers.dashboard import router as dashboard_router
 from routers.expenses import router as expenses_router
+from routers.forecast import router as forecast_router
 from routers.invoices import router as invoices_router
 from routers.settings import router as settings_router
 
@@ -42,6 +43,7 @@ app.include_router(invoices_router)
 app.include_router(expenses_router)
 app.include_router(settings_router)
 app.include_router(dashboard_router)
+app.include_router(forecast_router)
 
 
 @app.get("/")

@@ -458,3 +458,41 @@ class DashboardSummaryOut(BaseModel):
     overdue_payments: float
     available_cash: float
 
+
+# ---------------------------------------------------------------------------
+# Cash-flow forecast
+# ---------------------------------------------------------------------------
+
+# Forecast windows the API accepts. Validated manually in the router, because
+# the detail message must be exactly "days must be one of 30, 60, 90.".
+FORECAST_DAYS = (30, 60, 90)
+
+
+class ForecastDayOut(BaseModel):
+    """One day of the forecast. Money values are INR with 2 decimal places."""
+
+    date: str
+    expected_income: float
+    expected_expenses: float
+    projected_balance: float
+
+
+class CashflowForecastOut(BaseModel):
+    """The cash-flow forecast as returned by the API.
+
+    All money fields are INR with 2 decimal places, sent as JSON numbers.
+    projected_balance can be negative. daily_forecast has one entry for every
+    day in the window, in date order.
+    """
+
+    starting_balance: float
+    currency: str
+    forecast_days: int
+    expected_income: float
+    expected_expenses: float
+    projected_closing_balance: float
+    lowest_projected_balance: float
+    lowest_balance_date: str
+    risk_of_negative_balance: bool
+    daily_forecast: list[ForecastDayOut]
+
