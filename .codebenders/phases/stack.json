@@ -1,0 +1,27 @@
+{
+  "frontend": {
+    "framework": "Vite + React",
+    "language": "TypeScript",
+    "version": "18"
+  },
+  "backend": {
+    "framework": "FastAPI",
+    "language": "Python",
+    "version": "0.115"
+  },
+  "database": {
+    "system": "sqlite",
+    "orm": "prisma",
+    "version": "3",
+    "connection": {
+      "hasSecret": false,
+      "kind": "url"
+    }
+  },
+  "package_manager": "npm",
+  "testing": {
+    "unit": "Vitest",
+    "e2e": "Playwright"
+  },
+  "source_files": []
+}

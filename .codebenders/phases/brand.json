@@ -1,0 +1,30 @@
+{
+  "colors": {
+    "primary": "#FF6B5B",
+    "secondary": "#7A2E6B",
+    "accent": "#E8488A",
+    "bg": "#FBF8F4",
+    "surface": "#EEE8F8",
+    "text": "#2A1F33",
+    "muted": "#7D7189",
+    "success": "#1F9D6B",
+    "danger": "#C62828"
+  },
+  "typography": {
+    "font_family": "DM Sans",
+    "font_sizes": [],
+    "font_weights": [],
+    "font_family_heading": "Outfit",
+    "font_family_mono": "JetBrains Mono"
+  },
+  "source_files": [],
+  "spacing": {
+    "base": "4px",
+    "scale": []
+  },
+  "radius": {
+    "base": "8px",
+    "scale": []
+  },
+  "reason": "A warm off-white base with coral-to-plum call-to-action accents, lilac secondary panels, and bold geometric headings gives freelancers a confident, self-promotional finance tool that reserves its loudest color for actions like sending invoices and chasing payments."
+}

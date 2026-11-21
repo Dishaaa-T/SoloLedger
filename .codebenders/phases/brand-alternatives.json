@@ -1,0 +1,114 @@
+{
+  "prdHash": "c1d0f47dbe9a653f70711154a573573529cf9761",
+  "brief": "",
+  "alternatives": [
+    {
+      "id": "ledger-paper-warmth",
+      "label": "Warm Ledger Paper",
+      "colors": {
+        "primary": "#1F2B45",
+        "secondary": "#8C7B66",
+        "accent": "#B5643F",
+        "bg": "#F3ECDF",
+        "surface": "#FBF7EF",
+        "text": "#1C2940",
+        "muted": "#7A6E5E",
+        "success": "#5F7D5B",
+        "danger": "#9E4536"
+      },
+      "typography": {
+        "font_family": "\"Source Sans 3\", \"Gill Sans\", \"Segoe UI\", sans-serif",
+        "font_family_heading": "\"Crimson Pro\", \"Libre Baskerville\", Georgia, serif",
+        "font_family_mono": "\"IBM Plex Mono\", ui-monospace, monospace"
+      },
+      "spacing": {
+        "base": "4px"
+      },
+      "radius": {
+        "base": "8px"
+      },
+      "reason": "Oatmeal paper neutrals, ink-navy text, and a single terracotta reserved for overdue figures, with serif numerals and a humanist sans, make the app read like a trusted bookkeeper's notebook rather than a trading terminal."
+    },
+    {
+      "id": "studio-daylight-clarity",
+      "label": "Daylight Studio Clarity",
+      "colors": {
+        "primary": "#5E9C94",
+        "secondary": "#2F5F5B",
+        "accent": "#E8B23A",
+        "bg": "#FFFFFF",
+        "surface": "#F5F8F7",
+        "text": "#14201E",
+        "muted": "#66766F",
+        "success": "#2F7D5B",
+        "danger": "#C2413A"
+      },
+      "typography": {
+        "font_family": "Hanken Grotesk",
+        "font_family_heading": "Urbanist",
+        "font_family_mono": "JetBrains Mono"
+      },
+      "spacing": {
+        "base": "4px"
+      },
+      "radius": {
+        "base": "8px"
+      },
+      "reason": "A bright white canvas with cool sage-teal structure, crisp low-contrast hairlines, and sunflower reserved only for positive cash-flow moments gives freelancers a well-lit, calm workspace that feels trustworthy and approachable without becoming playful."
+    },
+    {
+      "id": "runway-dusk-forecast",
+      "label": "Dusk Runway Forecast",
+      "colors": {
+        "primary": "#2EE6D6",
+        "secondary": "#F5B94A",
+        "accent": "#FFD27A",
+        "bg": "#0B1426",
+        "surface": "#15213A",
+        "text": "#E6EEF8",
+        "muted": "#8192AD",
+        "success": "#5BD6A0",
+        "danger": "#FF6B7A"
+      },
+      "typography": {
+        "font_family": "Nunito, 'Varela Round', ui-rounded, system-ui, sans-serif",
+        "font_family_heading": "'Barlow Condensed', 'Oswald', 'Arial Narrow', sans-serif",
+        "font_family_mono": "'JetBrains Mono', ui-monospace, monospace"
+      },
+      "spacing": {
+        "base": "4px"
+      },
+      "radius": {
+        "base": "8px"
+      },
+      "reason": "Midnight slate surfaces with glowing aqua forecast strokes and amber what-if lines, paired with condensed headline metrics and rounded supporting copy, convey calm, trustworthy foresight over the months ahead."
+    },
+    {
+      "id": "invoice-coral-energy",
+      "label": "Confident Coral Hustle",
+      "colors": {
+        "primary": "#FF6B5B",
+        "secondary": "#7A2E6B",
+        "accent": "#E8488A",
+        "bg": "#FBF8F4",
+        "surface": "#EEE8F8",
+        "text": "#2A1F33",
+        "muted": "#7D7189",
+        "success": "#1F9D6B",
+        "danger": "#C62828"
+      },
+      "typography": {
+        "font_family": "DM Sans",
+        "font_family_heading": "Outfit",
+        "font_family_mono": "JetBrains Mono"
+      },
+      "spacing": {
+        "base": "4px"
+      },
+      "radius": {
+        "base": "8px"
+      },
+      "reason": "A warm off-white base with coral-to-plum call-to-action accents, lilac secondary panels, and bold geometric headings gives freelancers a confident, self-promotional finance tool that reserves its loudest color for actions like sending invoices and chasing payments."
+    }
+  ]
+}

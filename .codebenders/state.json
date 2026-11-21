@@ -1,7 +1,100 @@
 {
   "schemaVersion": 2,
   "createdAt": "2026-11-21T11:51:51.443Z",
-  "updatedAt": "2026-11-21T11:51:51.443Z",
-  "phases": {},
-  "settings": {}
+  "updatedAt": "2026-11-21T14:59:03.239Z",
+  "phases": {
+    "architecture": {
+      "updatedAt": "2026-11-21T14:58:50.253Z",
+      "committed": true
+    },
+    "prd": {
+      "updatedAt": "2026-11-21T14:56:11.992Z",
+      "committed": true
+    },
+    "apis": {
+      "updatedAt": "2026-11-21T14:50:23.884Z",
+      "committed": false
+    },
+    "schema": {
+      "updatedAt": "2026-11-21T14:50:24.208Z",
+      "committed": false
+    },
+    "ble": {
+      "updatedAt": "2026-11-21T14:54:16.511Z",
+      "committed": false
+    },
+    "stack": {
+      "updatedAt": "2026-11-21T14:53:31.815Z",
+      "committed": true
+    },
+    "persona": {
+      "updatedAt": "2026-11-21T14:56:17.237Z",
+      "committed": false
+    },
+    "brand": {
+      "updatedAt": "2026-11-21T14:58:32.107Z",
+      "committed": true
+    },
+    "brand-guided": {
+      "updatedAt": "2026-11-21T14:59:03.239Z",
+      "committed": false
+    }
+  },
+  "settings": {},
+  "flow": {
+    "architecture": {
+      "hash": "b1c7c8c6574daa37",
+      "parts": {
+        "architecture": "39d9ee486a44c1eb"
+      },
+      "builtFrom": {}
+    },
+    "prd": {
+      "hash": "225c37f55089ceb0",
+      "builtFrom": {}
+    },
+    "apis": {
+      "hash": "fda17b42ea971d14",
+      "builtFrom": {
+        "prd": "9d848b0fb3d42d21"
+      }
+    },
+    "schema": {
+      "hash": "23cc3e3d39e25a14",
+      "builtFrom": {
+        "prd": "9d848b0fb3d42d21",
+        "apis": "fda17b42ea971d14",
+        "ble": "47f7fc2aa32bf5a4"
+      }
+    },
+    "ble": {
+      "hash": "0682986bc86a3886",
+      "builtFrom": {
+        "prd": "f1592f1da5b60d38",
+        "apis": "fda17b42ea971d14"
+      }
+    },
+    "stack": {
+      "hash": "2f9be1e498d5828a",
+      "parts": {
+        "databaseKind": "684a0cfa7ca53b79"
+      },
+      "builtFrom": {
+        "prd": "f1592f1da5b60d38",
+        "architecture": "296b96a1c1d7650d"
+      }
+    },
+    "persona": {
+      "hash": "5e563b19d6fc0704",
+      "builtFrom": {
+        "prd": "225c37f55089ceb0"
+      }
+    },
+    "brand": {
+      "hash": "14c00b2945af3cd7",
+      "builtFrom": {
+        "prd": "225c37f55089ceb0"
+      }
+    }
+  }
 }

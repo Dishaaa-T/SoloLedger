@@ -53,6 +53,19 @@ def set_setting(conn: sqlite3.Connection, key: str, value: str) -> None:
     )
 
 
+def _add_missing_columns(conn: sqlite3.Connection) -> None:
+    """Add the phone and notes columns to clients if they are missing.
+
+    Runs inside init_db()'s transaction. ALTER TABLE ... ADD COLUMN is
+    cheap and keeps existing rows intact.
+    """
+    existing = {row["name"] for row in conn.execute("PRAGMA table_info(clients)")}
+    if "phone" not in existing:
+        conn.execute("ALTER TABLE clients ADD COLUMN phone TEXT")
+    if "notes" not in existing:
+        conn.execute("ALTER TABLE clients ADD COLUMN notes TEXT")
+
+
 def init_db() -> None:
     """Create all tables and indexes, and seed sample data once.
 
@@ -91,6 +104,8 @@ def init_db() -> None:
             )
             """
         )
+        # Older databases may lack the phone/notes columns; add them if missing.
+        _add_missing_columns(conn)
 
         # invoices: money we are owed (or have been paid).
         # Amounts are stored in cents to avoid floating-point rounding errors.

@@ -1,0 +1,34 @@
+{
+  "target_users": [
+    "Freelance developers",
+    "Designers",
+    "Content creators",
+    "Consultants"
+  ],
+  "core_capabilities": [
+    "Manage clients",
+    "Manage invoices",
+    "Track expenses",
+    "View a financial dashboard",
+    "Forecast cash flow",
+    "Simulate what-if payment scenarios",
+    "See a financial health score",
+    "Receive actionable financial recommendations"
+  ],
+  "non_goals": [
+    "It does not replace professional accountants, tax consultants or financial advisors.",
+    "It does not provide automated GST filing, income tax filing or tax-return submission.",
+    "It does not connect directly to bank accounts or access banking credentials.",
+    "It does not initiate payments, transfer money or process transactions.",
+    "It does not generate legally binding invoices or guarantee tax compliance.",
+    "It does not guarantee that clients will pay outstanding invoices.",
+    "It does not provide investment, loan or credit recommendations.",
+    "It does not support complex enterprise accounting or multi-company financial management.",
+    "It does not automatically send payment reminders without user approval.",
+    "It does not depend on paid AI APIs or require users to purchase subscriptions to access core financial features."
+  ],
+  "source_files": [],
+  "raw_text": "",
+  "product_name": "SoloLedger",
+  "one_line_summary": "A financial co-pilot that helps freelancers track invoices, expenses and pending payments, and plan their cash flow."
+}

@@ -1,0 +1,15 @@
+{
+  "prdHash": "c1d0f47dbe9a653f70711154a573573529cf9761",
+  "generatedAt": "2026-11-21T14:59:03.244Z",
+  "agent_type": "brand-preview-html",
+  "designSpec": {
+    "layout_archetype": "marketing hero with feature grid and live data preview",
+    "nav_pattern": "sticky top bar with wordmark, inline links and dual CTAs",
+    "surface": "muted off-white page with white cards and a tinted feature band",
+    "card_treatment": "1px border with small shadow; hero card elevated with large shadow",
+    "density": "comfortable, generous section spacing on rem scale",
+    "elevation": "shadow-sm for cards, shadow-lg for hero preview, flat nav rule",
+    "radius_language": "moderate radius on cards and buttons, pill badges and status chips",
+    "signature_motifs": "health score and cash flow bar chart, invoice ID code tags, what-if scenario panel"
+  }
+}

@@ -1,0 +1,22 @@
+2026-11-21T14:50:19.377Z  [before session started] [log-upload] enabled — this run's diagnostics are also being sent to the backend
+2026-11-21T14:50:19.379Z  [generation-log] session wizard-20261121 → d:/SoloLedger/.codebenders/logs/wizard-20261121
+2026-11-21T14:50:19.379Z  [phase] ▸ prd (detect) started [turn prd-existing-shell-1795272619320-qjf3j8]
+2026-11-21T14:50:19.379Z  [phase] ▸ persona (detect) started [turn persona-existing-shell-1795272619320-vxdg9u]
+2026-11-21T14:50:19.379Z  [phase] ▸ brand (detect) started [turn brand-existing-shell-1795272619320-ur3k6j]
+2026-11-21T14:50:19.382Z  [phase] ✓ pages ok in 24ms
+2026-11-21T14:50:19.383Z  [phase] ▸ pages (detect) started [turn pages-existing-shell-1795272619321-0b28m6]
+2026-11-21T14:50:19.385Z  [phase] ▸ stack (detect) started [turn stack-existing-shell-1795272619321-v0masp]
+2026-11-21T14:50:19.386Z  [phase] ▸ apis (detect) started [turn apis-existing-shell-1795272619321-95s166]
+2026-11-21T14:50:19.386Z  [phase] ▸ ble (detect) started [turn ble-existing-shell-1795272619321-50sif0]
+2026-11-21T14:50:19.386Z  [phase] ▸ schema (detect) started [turn schema-existing-shell-1795272619321-qv8tf7]
+2026-11-21T14:50:19.387Z  [phase] ▸ atlas (detect) started [turn atlas-existing-shell-1795272619321-wghd3k]
+2026-11-21T14:50:19.389Z  [phase] ▸ architecture (detect) started [turn architecture-existing-shell-1795272619321-1tcbz9]
+2026-11-21T14:50:19.530Z  [phase] ✓ architecture ok in 164ms
+2026-11-21T14:50:23.316Z  [phase] ✓ prd ok in 3979ms
+2026-11-21T14:50:23.893Z  [phase] ✓ brand ok in 4538ms
+2026-11-21T14:50:23.895Z  [phase] ✓ atlas ok in 4532ms
+2026-11-21T14:50:23.897Z  [phase] ✓ persona ok in 4544ms
+2026-11-21T14:50:23.901Z  [phase] ✓ apis ok in 4541ms
+2026-11-21T14:50:24.213Z  [phase] ✓ schema ok in 4851ms
+2026-11-21T14:50:27.436Z  [phase] ✓ ble ok in 8075ms
+2026-11-21T14:50:32.796Z  [phase] ✓ stack ok in 13438ms

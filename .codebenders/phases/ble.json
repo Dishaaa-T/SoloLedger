@@ -1,0 +1,187 @@
+{
+  "components": [
+    {
+      "name": "RootLayout",
+      "path": "src/app/layout.tsx",
+      "props": [
+        "children: React.ReactNode"
+      ],
+      "purpose": "Wraps every page with the global shell, fonts, session provider and the Navbar."
+    },
+    {
+      "name": "Navbar",
+      "path": "src/components/Navbar.tsx",
+      "props": [
+        "user: { name: string; email: string } | null"
+      ],
+      "purpose": "Provides primary navigation across dashboard, clients, invoices, expenses, forecast, what-if scenarios and profile."
+    },
+    {
+      "name": "FinancialDashboardPage",
+      "path": "src/app/page.tsx",
+      "props": [],
+      "purpose": "Shows the financial overview, health score and actionable recommendations."
+    },
+    {
+      "name": "LoginPage",
+      "path": "src/app/login/page.tsx",
+      "props": [
+        "searchParams: { redirect?: string }"
+      ],
+      "purpose": "Lets users sign in with email and password."
+    },
+    {
+      "name": "SignUpPage",
+      "path": "src/app/signup/page.tsx",
+      "props": [],
+      "purpose": "Lets new freelancers, designers, creators and consultants create an account."
+    },
+    {
+      "name": "ForgotPasswordPage",
+      "path": "src/app/forgot-password/page.tsx",
+      "props": [],
+      "purpose": "Requests a password reset link to be sent by email."
+    },
+    {
+      "name": "ResetPasswordPage",
+      "path": "src/app/reset-password/page.tsx",
+      "props": [
+        "searchParams: { token?: string }"
+      ],
+      "purpose": "Lets the user set a new password from the emailed reset link."
+    },
+    {
+      "name": "ProfilePage",
+      "path": "src/app/profile/page.tsx",
+      "props": [],
+      "purpose": "Lets the user update name, email and password, and sign out."
+    },
+    {
+      "name": "ClientsPage",
+      "path": "src/app/clients/page.tsx",
+      "props": [],
+      "purpose": "Lists the user's clients with links to add or open each one."
+    },
+    {
+      "name": "ClientDetailPage",
+      "path": "src/app/clients/[id]/page.tsx",
+      "props": [
+        "params: { id: string }"
+      ],
+      "purpose": "Shows and edits one client's details along with their related invoices."
+    },
+    {
+      "name": "NewClientPage",
+      "path": "src/app/clients/new/page.tsx",
+      "props": [],
+      "purpose": "Provides the form to add a new client."
+    },
+    {
+      "name": "InvoicesPage",
+      "path": "src/app/invoices/page.tsx",
+      "props": [],
+      "purpose": "Lists invoices and highlights which payments are pending."
+    },
+    {
+      "name": "InvoiceDetailPage",
+      "path": "src/app/invoices/[id]/page.tsx",
+      "props": [
+        "params: { id: string }"
+      ],
+      "purpose": "Shows one invoice and lets the user track and update its payment status."
+    },
+    {
+      "name": "NewInvoicePage",
+      "path": "src/app/invoices/new/page.tsx",
+      "props": [],
+      "purpose": "Creates a new invoice for a selected client."
+    },
+    {
+      "name": "ExpensesPage",
+      "path": "src/app/expenses/page.tsx",
+      "props": [],
+      "purpose": "Lists business expenses and tracks spending."
+    },
+    {
+      "name": "ExpenseDetailPage",
+      "path": "src/app/expenses/[id]/page.tsx",
+      "props": [
+        "params: { id: string }"
+      ],
+      "purpose": "Shows and edits a single expense."
+    },
+    {
+      "name": "NewExpensePage",
+      "path": "src/app/expenses/new/page.tsx",
+      "props": [],
+      "purpose": "Records a new business expense."
+    },
+    {
+      "name": "CashFlowForecastPage",
+      "path": "src/app/cash-flow-forecast/page.tsx",
+      "props": [],
+      "purpose": "Projects future cash flow from invoices, pending payments and expenses."
+    },
+    {
+      "name": "WhatIfScenariosPage",
+      "path": "src/app/what-if-scenarios/page.tsx",
+      "props": [],
+      "purpose": "Simulates payment scenarios and shows their effect on projected cash flow."
+    }
+  ],
+  "architecture": {
+    "layout": "single",
+    "boundaries": [
+      "Public auth routes (/login, /signup, /forgot-password, /reset-password) are separate from the authenticated app routes",
+      "Pages fetch and mutate data through server actions; components stay presentational",
+      "Financial calculations (forecast, health score, what-if) live in a server-side domain module, not in page components",
+      "Only Navbar and RootLayout are shared chrome; all other UI is owned by its declared page"
+    ],
+    "state_management": "server actions + React Context (CRUD)",
+    "notable_dirs": [
+      "src/app",
+      "src/components",
+      "src/lib/actions",
+      "src/lib/finance",
+      "src/lib/auth",
+      "src/lib/db"
+    ]
+  },
+  "flows": [
+    {
+      "name": "sign-up-and-onboard",
+      "entry": "src/app/signup/page.tsx",
+      "summary": "A new freelancer, designer, creator or consultant creates an account and lands on the financial dashboard."
+    },
+    {
+      "name": "sign-in-and-recover-password",
+      "entry": "src/app/login/page.tsx",
+      "summary": "A returning user signs in, or requests a reset link and sets a new password from the emailed link."
+    },
+    {
+      "name": "add-client-and-invoice",
+      "entry": "src/app/clients/new/page.tsx",
+      "summary": "The user adds a client, then creates an invoice for that client and tracks its payment status."
+    },
+    {
+      "name": "record-business-expense",
+      "entry": "src/app/expenses/new/page.tsx",
+      "summary": "The user records a business expense and reviews it in the expenses list and detail view."
+    },
+    {
+      "name": "review-dashboard-and-recommendations",
+      "entry": "src/app/page.tsx",
+      "summary": "The user reviews the financial health score and acts on the recommendations shown on the dashboard."
+    },
+    {
+      "name": "forecast-cash-flow",
+      "entry": "src/app/cash-flow-forecast/page.tsx",
+      "summary": "The user projects future cash flow from invoices, pending payments and expenses."
+    },
+    {
+      "name": "simulate-what-if-payments",
+      "entry": "src/app/what-if-scenarios/page.tsx",
+      "summary": "The user simulates payment scenarios and compares their effect on projected cash flow."
+    }
+  ]
+}
