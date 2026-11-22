@@ -1,6 +1,5 @@
 
 import { useEffect, useState } from 'react'
-import PageHeader from '../components/PageHeader'
 import EmptyState from '../components/EmptyState'
 import { getActionCentre } from '../services/api'
 
@@ -53,12 +52,7 @@ export default function ActionCentre() {
 
   return (
     <div>
-      <PageHeader title="Action Centre" />
-
       <div style={{ padding: '24px' }}>
-        <p style={{ color: '#64748b', marginTop: 0 }}>
-          Items that need your attention.
-        </p>
 
         {loading && (
           <p style={{ color: '#64748b', marginTop: '24px' }}>

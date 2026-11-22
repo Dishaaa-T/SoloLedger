@@ -1,6 +1,5 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import PageHeader from '../components/PageHeader'
 import EmptyState from '../components/EmptyState'
 import LoadingState from '../components/LoadingState'
 import ErrorState from '../components/ErrorState'
@@ -453,7 +452,7 @@ export default function Invoices() {
   return (
     <div>
       <div className="flex flex-col gap-4 p-6 sm:flex-row sm:items-start sm:justify-between">
-        <PageHeader title="Invoices" subtitle="Create, track and manage client invoices." />
+
         <button
           type="button"
           onClick={openCreateForm}

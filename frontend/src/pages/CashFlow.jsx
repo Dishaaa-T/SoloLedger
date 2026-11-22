@@ -1,6 +1,5 @@
 
 import { useEffect, useState } from 'react'
-import PageHeader from '../components/PageHeader'
 import EmptyState from '../components/EmptyState'
 import { getCashflow } from '../services/api'
 
@@ -39,24 +38,20 @@ export default function CashFlow() {
   }
 
   if (loading) {
-    return <div><PageHeader title="Cash Flow Forecast" /><p>Loading forecast...</p></div>
+    return <div><p>Loading forecast...</p></div>
   }
 
   if (error) {
-    return <div><PageHeader title="Cash Flow Forecast" /><p style={{ color: 'red' }}>{error}</p></div>
+    return <div><p style={{ color: 'red' }}>{error}</p></div>
   }
 
   if (!forecast) {
-    return <div><PageHeader title="Cash Flow Forecast" /><EmptyState title="No forecast yet" message="Unable to find forecast data." /></div>
+    return <div><EmptyState title="No forecast yet" message="Unable to find forecast data." /></div>
   }
 
   return (
     <div>
-      <PageHeader title="Cash Flow Forecast" />
-
       <div style={{ padding: '24px' }}>
-        <h2>Cash Flow Forecast</h2>
-        <p>See where your cash is heading over the next 30 days.</p>
 
         <div style={{
           display: 'grid',

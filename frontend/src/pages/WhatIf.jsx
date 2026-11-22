@@ -1,6 +1,5 @@
 
 import { useEffect, useState } from 'react'
-import PageHeader from '../components/PageHeader'
 import { runWhatIf, getInvoices } from '../services/api'
 
 export default function WhatIf() {
@@ -136,145 +135,294 @@ export default function WhatIf() {
 
   return (
     <div>
-      <PageHeader title="What-If Simulator" />
-
       <div style={{ padding: '24px' }}>
-        <h2>What-If Simulator</h2>
-        <p>Test financial scenarios before making business decisions.</p>
+
+        <style>{`
+          .wi-cards { display: grid; gap: 16px; }
+          .wi-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+          }
+          .wi-card-title { margin: 0; font-size: 16px; font-weight: 600; color: #1F2937; }
+          .wi-card-sub { margin: 4px 0 0; font-size: 13px; color: #64748b; }
+          .wi-fields { display: grid; gap: 14px; }
+          .wi-field { display: flex; flex-direction: column; min-width: 0; }
+          .wi-label { font-size: 13px; font-weight: 600; color: #1F2937; margin-bottom: 6px; }
+          .wi-input {
+            width: 100%;
+            height: 42px;
+            box-sizing: border-box;
+            padding: 0 12px;
+            font-size: 14px;
+            color: #1F2937;
+            background: white;
+            border: 1px solid rgba(100, 116, 139, 0.45);
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+          }
+          .wi-input::placeholder { color: #94a3b8; }
+          .wi-input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+          }
+          .wi-input:disabled { opacity: 0.6; cursor: not-allowed; background: #f1f5f9; }
+          .wi-select {
+            appearance: none;
+            -webkit-appearance: none;
+            padding-right: 36px;
+            cursor: pointer;
+            background-color: white;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2364748b' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 12px 8px;
+          }
+          .wi-input[type='date'] { color-scheme: light; }
+          .wi-actions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 16px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 16px 20px;
+          }
+          .wi-forecast { width: 220px; max-width: 100%; }
+          .wi-submit {
+            height: 42px;
+            padding: 0 28px;
+            font-size: 15px;
+            font-weight: 600;
+            color: white;
+            background: #2563eb;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+            transition: opacity 0.15s;
+          }
+          .wi-submit:hover:not(:disabled) { opacity: 0.9; }
+          .wi-submit:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.35); }
+          .wi-submit:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+          @media (min-width: 900px) {
+            .wi-cards { grid-template-columns: 1fr 1fr; }
+            .wi-card-wide { grid-column: 1 / -1; }
+            .wi-fields-2 { grid-template-columns: 1fr 1fr; }
+            .wi-span-2 { grid-column: 1 / -1; }
+          }
+        `}</style>
 
         <form
           onSubmit={handleSubmit}
-          style={{
-            background: 'white',
-            padding: '24px',
-            borderRadius: '12px',
-            display: 'grid',
-            gap: '16px',
-            marginTop: '20px',
-          }}
+          style={{ marginTop: '20px', maxWidth: '960px' }}
         >
-          <h3>Invoice Delay Scenario</h3>
+          <div className="wi-cards">
+            <section className="wi-card wi-card-wide">
+              <div>
+                <h3 className="wi-card-title">Invoice Delay Scenario</h3>
+                <p className="wi-card-sub">
+                  Simulate paying a selected unpaid invoice later than planned.
+                </p>
+              </div>
 
-          <label>Select Unpaid Invoice</label>
-          <select
-            required
-            value={form.delay_invoice_id}
-            disabled={loadingInvoices || invoices.length === 0}
-            onChange={e => update('delay_invoice_id', e.target.value)}
-          >
-            {loadingInvoices && (
-              <option value="">Loading invoices...</option>
-            )}
+              <div className="wi-fields wi-fields-2">
+                <div className="wi-field wi-span-2">
+                  <label htmlFor="wi-invoice" className="wi-label">
+                    Select Unpaid Invoice
+                  </label>
+                  <select
+                    id="wi-invoice"
+                    className="wi-input wi-select"
+                    required
+                    value={form.delay_invoice_id}
+                    disabled={loadingInvoices || invoices.length === 0}
+                    onChange={e => update('delay_invoice_id', e.target.value)}
+                  >
+                    {loadingInvoices && (
+                      <option value="">Loading invoices...</option>
+                    )}
 
-            {!loadingInvoices && invoices.length === 0 && (
-              <option value="">No unpaid invoices available</option>
-            )}
+                    {!loadingInvoices && invoices.length === 0 && (
+                      <option value="">No unpaid invoices available</option>
+                    )}
 
-            {invoices.map(invoice => (
-              <option key={invoice.id} value={invoice.id}>
-                Invoice #{invoice.id} - {money(invoice.amount)} - {invoice.status}
-              </option>
-            ))}
-          </select>
+                    {invoices.map(invoice => (
+                      <option key={invoice.id} value={invoice.id}>
+                        Invoice #{invoice.id} - {money(invoice.amount)} - {invoice.status}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-          <label>Delay Days</label>
-          <input
-            type="number"
-            min="0"
-            value={form.delay_days}
-            onChange={e => update('delay_days', e.target.value)}
-          />
+                <div className="wi-field">
+                  <label htmlFor="wi-delay" className="wi-label">
+                    Delay Days
+                  </label>
+                  <input
+                    id="wi-delay"
+                    className="wi-input"
+                    type="number"
+                    min="0"
+                    placeholder="e.g. 7"
+                    value={form.delay_days}
+                    onChange={e => update('delay_days', e.target.value)}
+                  />
+                </div>
+              </div>
+            </section>
 
-          <h3>Unexpected Expense</h3>
+            <section className="wi-card">
+              <div>
+                <h3 className="wi-card-title">Unexpected Expense</h3>
+                <p className="wi-card-sub">
+                  A one-off cash outflow on a specific date.
+                </p>
+              </div>
 
-          <label>Expense Amount (₹)</label>
-          <input
-            type="number"
-            min="0"
-            step="0.01"
-            required
-            value={form.unexpected_expense.amount}
-            onChange={e =>
-              setForm(prev => ({
-                ...prev,
-                unexpected_expense: {
-                  ...prev.unexpected_expense,
-                  amount: e.target.value,
-                },
-              }))
-            }
-          />
+              <div className="wi-fields">
+                <div className="wi-field">
+                  <label htmlFor="wi-expense-amount" className="wi-label">
+                    Expense Amount (₹)
+                  </label>
+                  <input
+                    id="wi-expense-amount"
+                    className="wi-input"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                    required
+                    value={form.unexpected_expense.amount}
+                    onChange={e =>
+                      setForm(prev => ({
+                        ...prev,
+                        unexpected_expense: {
+                          ...prev.unexpected_expense,
+                          amount: e.target.value,
+                        },
+                      }))
+                    }
+                  />
+                </div>
 
-          <label>Expense Date</label>
-          <input
-            type="date"
-            required
-            value={form.unexpected_expense.date}
-            onChange={e =>
-              setForm(prev => ({
-                ...prev,
-                unexpected_expense: {
-                  ...prev.unexpected_expense,
-                  date: e.target.value,
-                },
-              }))
-            }
-          />
+                <div className="wi-field">
+                  <label htmlFor="wi-expense-date" className="wi-label">
+                    Expense Date
+                  </label>
+                  <input
+                    id="wi-expense-date"
+                    className="wi-input"
+                    type="date"
+                    required
+                    value={form.unexpected_expense.date}
+                    onChange={e =>
+                      setForm(prev => ({
+                        ...prev,
+                        unexpected_expense: {
+                          ...prev.unexpected_expense,
+                          date: e.target.value,
+                        },
+                      }))
+                    }
+                  />
+                </div>
+              </div>
+            </section>
 
-          <h3>Additional Income</h3>
+            <section className="wi-card">
+              <div>
+                <h3 className="wi-card-title">Additional Income</h3>
+                <p className="wi-card-sub">
+                  An extra cash inflow expected on a specific date.
+                </p>
+              </div>
 
-          <label>Additional Income (₹)</label>
-          <input
-            type="number"
-            min="0"
-            step="0.01"
-            required
-            value={form.additional_income.amount}
-            onChange={e =>
-              setForm(prev => ({
-                ...prev,
-                additional_income: {
-                  ...prev.additional_income,
-                  amount: e.target.value,
-                },
-              }))
-            }
-          />
+              <div className="wi-fields">
+                <div className="wi-field">
+                  <label htmlFor="wi-income-amount" className="wi-label">
+                    Additional Income (₹)
+                  </label>
+                  <input
+                    id="wi-income-amount"
+                    className="wi-input"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                    required
+                    value={form.additional_income.amount}
+                    onChange={e =>
+                      setForm(prev => ({
+                        ...prev,
+                        additional_income: {
+                          ...prev.additional_income,
+                          amount: e.target.value,
+                        },
+                      }))
+                    }
+                  />
+                </div>
 
-          <label>Income Date</label>
-          <input
-            type="date"
-            required
-            value={form.additional_income.date}
-            onChange={e =>
-              setForm(prev => ({
-                ...prev,
-                additional_income: {
-                  ...prev.additional_income,
-                  date: e.target.value,
-                },
-              }))
-            }
-          />
+                <div className="wi-field">
+                  <label htmlFor="wi-income-date" className="wi-label">
+                    Income Date
+                  </label>
+                  <input
+                    id="wi-income-date"
+                    className="wi-input"
+                    type="date"
+                    required
+                    value={form.additional_income.date}
+                    onChange={e =>
+                      setForm(prev => ({
+                        ...prev,
+                        additional_income: {
+                          ...prev.additional_income,
+                          date: e.target.value,
+                        },
+                      }))
+                    }
+                  />
+                </div>
+              </div>
+            </section>
+          </div>
 
-          <h3>Forecast Duration</h3>
+          <div className="wi-actions" style={{ marginTop: '16px' }}>
+            <div className="wi-field wi-forecast">
+              <label htmlFor="wi-forecast" className="wi-label">
+                Forecast Duration
+              </label>
+              <select
+                id="wi-forecast"
+                className="wi-input wi-select"
+                value={form.forecast_days}
+                onChange={e => update('forecast_days', e.target.value)}
+              >
+                <option value="30">30 Days</option>
+                <option value="60">60 Days</option>
+                <option value="90">90 Days</option>
+              </select>
+            </div>
 
-          <select
-            value={form.forecast_days}
-            onChange={e => update('forecast_days', e.target.value)}
-          >
-            <option value="30">30 Days</option>
-            <option value="60">60 Days</option>
-            <option value="90">90 Days</option>
-          </select>
-
-          <button
-            type="submit"
-            disabled={loading || loadingInvoices || invoices.length === 0}
-          >
-            {loading ? 'Running Simulation...' : 'Run Simulation'}
-          </button>
+            <button
+              type="submit"
+              className="wi-submit"
+              disabled={loading || loadingInvoices || invoices.length === 0}
+            >
+              {loading ? 'Running Simulation...' : 'Run Simulation'}
+            </button>
+          </div>
         </form>
+
 
         {error && (
           <p style={{ color: '#dc2626', marginTop: '20px' }}>

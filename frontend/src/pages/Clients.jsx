@@ -1,6 +1,5 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import PageHeader from '../components/PageHeader'
 import EmptyState from '../components/EmptyState'
 import PaymentRiskCard from '../components/PaymentRiskCard'
 import ClientFormModal from '../components/ClientFormModal'
@@ -132,14 +131,8 @@ export default function Clients() {
 
   return (
     <div>
-      <PageHeader title="Clients" />
-
       <div style={{ padding: '24px' }}>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <h2>Clients</h2>
-            <p>Manage the people and businesses you bill.</p>
-          </div>
           <button
             type="button"
             onClick={openCreateForm}

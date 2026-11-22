@@ -18,3 +18,4 @@
 2026-11-21T15:11:57.290Z  [log] [phase.commit] posting from PhaseEditor phase=atlas variant=none
 2026-11-21T15:12:45.811Z  [log] [phase.commit] continue phase=ble dirty=false commit=available
 2026-11-21T15:12:45.812Z  [log] [phase.commit] posting from the BLE screen phase=ble
+2026-11-22T10:21:15.720Z  [log] [nx-trace 10:21:15.718] guide MOUNT {"initialScreen":"home"}
