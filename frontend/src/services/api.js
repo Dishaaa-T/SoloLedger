@@ -1,3 +1,4 @@
+
 import axios from 'axios'
 
 export const API_BASE_URL =
@@ -17,6 +18,10 @@ export const getInvoices = () => api.get('/invoices')
 
 export const getExpenses = () => api.get('/expenses')
 
+export const addExpense = (data) => api.post('/expenses', data)
+
+export const deleteExpense = (id) => api.delete(`/expenses/${id}`)
+
 export const getBalance = () => api.get('/settings/balance')
 
 export const getCashflow = (days) =>
@@ -24,4 +29,11 @@ export const getCashflow = (days) =>
 
 export const getActionCentre = () => api.get('/action-centre')
 
+export const runWhatIf = (data) =>
+  api.post('/simulator/what-if', data)
+
+// Named export
+export { api }
+
+// Default export
 export default api

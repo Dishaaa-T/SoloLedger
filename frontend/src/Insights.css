@@ -1,0 +1,72 @@
+
+.insights-page {
+  color: #252344;
+}
+
+.insights-page h1 {
+  font-size: 30px;
+  margin-bottom: 8px;
+}
+
+.insights-page > p {
+  color: #77738e;
+  margin-bottom: 25px;
+}
+
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.insight-card,
+.insight-recommendations {
+  background: white;
+  padding: 25px;
+  border: 1px solid #e9e8f1;
+  border-radius: 16px;
+}
+
+.insight-card h3 {
+  color: #77738e;
+}
+
+.insight-card h2 {
+  color: #6554e8;
+  font-size: 28px;
+  margin: 15px 0;
+}
+
+.insight-card p {
+  color: #88849d;
+}
+
+.insight-recommendations {
+  margin-top: 25px;
+}
+
+.insight-recommendations h2 {
+  margin-bottom: 20px;
+}
+
+.insight-recommendations p {
+  padding: 12px;
+  background: #f7f6ff;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 700px) {
+  .insights-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.insights-page h1,
+.insights-page h2,
+.insights-page h3 {
+  color: #252344 !important;
+}
+
+.insights-page p {
+  color: #55516f;
+}
