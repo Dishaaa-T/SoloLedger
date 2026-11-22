@@ -36,3 +36,26 @@
 6. Click a row and confirm the payment-risk panel appears at the bottom.
 
 Note: the backend was not modified.
+
+## Invoices page: management UI
+
+- Files created: `src/components/InvoiceFormModal.jsx` creates and edits invoices with a client dropdown. It checks that the amount is greater than 0 and that the due date is not before the issue date. A duplicate invoice number is shown from the 409 response.
+- Files created: `src/components/MarkPaidDialog.jsx` asks for the actual payment date. It checks that the date is not before the issue date and not in the future. It never marks an invoice paid automatically.
+- Files created: `src/components/InvoiceDetailModal.jsx` shows read-only invoice details with Edit, Mark as paid and Delete actions.
+- Files changed: `src/pages/Invoices.jsx` was rewritten. It shows summary cards for total count, total invoiced, paid, pending and overdue, computed from the fetched list. It has filter tabs for All, Paid, Pending and Overdue. The table is sorted newest first and uses status pills. Clicking a row opens the details. The Edit, Mark as paid and Delete actions are available, and Delete asks for confirmation.
+- Files changed: `src/services/api.js` adds `createInvoice`, `updateInvoice`, `markInvoicePaid` and `deleteInvoice`. Existing exports are unchanged.
+- Backend endpoints used: `POST /invoices`, `PUT /invoices/{id}`, `POST /invoices/{id}/mark-paid`, `DELETE /invoices/{id}`, `GET /invoices` and `GET /clients`. The update endpoint does not accept a status or payment date, so payments go only through mark-paid.
+- Not changed: backend files, the ML payment-risk feature, the dashboard and other pages.
+- How to test: run the backend and the frontend. On the Invoices page, create an invoice and try an amount of 0, a due date before the issue date, and a duplicate invoice number. Then edit it, mark it paid with a date, and delete a test invoice.
+
+## Expenses page: management UI
+
+- Files created: `src/components/ExpenseFormModal.jsx` is the add and edit form. It has title, description, amount (must be greater than 0), category, expense date, payment method, status, and notes. Status has an "Automatic (based on date)" option; when Automatic is chosen the status is left out of the request so the backend date rule applies. In edit mode a null status is never sent.
+- Files created: `src/components/ExpenseDetailModal.jsx` shows read-only expense details with Edit and Delete actions.
+- Files changed: `src/pages/Expenses.jsx` was rewritten. It shows summary cards for total, paid, upcoming and record count, computed from all fetched expenses. It has search by title or description, and status, category and date-range filters applied in the browser. The table is sorted newest first and uses status pills. Clicking a row opens the details. Edit and Delete actions are available, and Delete asks for confirmation.
+- Files changed: `src/services/api.js` adds `getExpense` and `updateExpense`. Existing exports are unchanged.
+- Category list: the form and filter use the defaults Software & Subscriptions, Internet & Utilities, Equipment, Travel, Marketing, Office Supplies, Professional Services and Other, plus any other categories found in the saved expenses.
+- Backend endpoints used: `POST /expenses`, `GET /expenses`, `GET /expenses/{id}`, `PUT /expenses/{id}` and `DELETE /expenses/{id}`.
+- Not changed: backend files, the cash balance, dashboard calculations, forecast, simulator, Action Centre, and the stray file `src/Expenses.jsx` (not imported by the app, left alone).
+- How to test: run the backend and the frontend. On the Expenses page, add an expense with amount 0 (rejected) and one with a blank title (rejected). Add one with a paid status, one with an upcoming status, and one left on Automatic. Edit one and confirm the other fields are kept. Filter by category, status and dates. Delete a test expense.
+

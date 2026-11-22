@@ -49,3 +49,19 @@ export { api }
 
 // Default export
 export default api
+
+
+export const createInvoice = (data) => api.post('/invoices', data)
+
+export const updateInvoice = (id, data) => api.put(`/invoices/${id}`, data)
+
+export const markInvoicePaid = (id, paidDate) =>
+  api.post(`/invoices/${id}/mark-paid`, paidDate ? { paid_date: paidDate } : {})
+
+export const deleteInvoice = (id) => api.delete(`/invoices/${id}`)
+
+
+export const getExpense = (id) => api.get(`/expenses/${id}`)
+
+export const updateExpense = (id, data) => api.put(`/expenses/${id}`, data)
+
