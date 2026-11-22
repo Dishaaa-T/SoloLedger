@@ -205,3 +205,73 @@ def test_fresh_database_has_six_seeded_expenses_with_titles(client):
     items = response.json()
     assert len(items) == 6
     assert all(item["title"] for item in items)
+
+
+
+def test_create_with_status_paid_is_saved_and_returned(client):
+    # A future date would be 'upcoming' by the date rule, so this proves the
+    # client's value is used.
+    response = _create(client, expense_date="2099-01-01", status="paid")
+    assert response.status_code == 201
+    assert response.json()["status"] == "paid"
+    created = response.json()
+    assert client.get(f"/expenses/{created['id']}").json()["status"] == "paid"
+
+
+def test_create_with_status_upcoming_is_saved_and_returned(client):
+    # A past date would be 'paid' by the date rule, so this proves the
+    # client's value is used.
+    response = _create(client, expense_date="2020-01-01", status="upcoming")
+    assert response.status_code == 201
+    assert response.json()["status"] == "upcoming"
+
+
+def test_create_without_status_uses_date_rule(client):
+    past = _create(client, expense_date="2020-01-01").json()
+    future = _create(client, expense_date="2099-01-01").json()
+    assert past["status"] == "paid"
+    assert future["status"] == "upcoming"
+
+
+@pytest.mark.parametrize("value", ["pending", "PAID", "", None])
+def test_invalid_status_is_422(client, value):
+    assert _create(client, status=value).status_code == 422
+
+
+def test_put_status_only_changes_status_and_keeps_other_fields(client):
+    created = _create(client, expense_date="2099-01-01", status="upcoming").json()
+    response = client.put(f"/expenses/{created['id']}", json={"status": "paid"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "paid"
+    assert data["title"] == "Figma subscription"
+    assert data["description"] == "Monthly design tool plan"
+    assert data["amount"] == 1250.0
+    assert data["category"] == "Software & Subscriptions"
+    assert data["expense_date"] == "2099-01-01"
+    assert data["payment_method"] == "card"
+    assert data["notes"] == "Business card ending 4411"
+
+
+def test_put_without_status_keeps_stored_status(client):
+    created = _create(client, expense_date="2099-01-01", status="paid").json()
+    response = client.put(f"/expenses/{created['id']}", json={"amount": 10})
+    assert response.status_code == 200
+    assert response.json()["status"] == "paid"
+
+
+def test_put_invalid_status_is_422(client):
+    created = _create(client).json()
+    response = client.put(f"/expenses/{created['id']}", json={"status": "overdue"})
+    assert response.status_code == 422
+
+
+def test_get_list_includes_status_for_every_item(client):
+    _create(client, expense_date="2099-01-01", status="upcoming")
+    _create(client, expense_date="2020-01-01", status="paid")
+    items = client.get("/expenses").json()
+    assert all(item["status"] in ("paid", "upcoming") for item in items)
+    statuses = {item["title"]: item["status"] for item in items}
+    assert statuses["Figma subscription"] in ("paid", "upcoming")
+    assert {"paid", "upcoming"} <= {item["status"] for item in items}
+

@@ -2,8 +2,10 @@
 Expense endpoints: create, list, get, update and delete.
 
 All SQL uses ? placeholders. Values are never placed into the SQL text.
-Status ('paid' or 'upcoming') is computed on every write from expense_date:
-a date today or earlier is 'paid', a later date is 'upcoming'.
+Status ('paid' or 'upcoming') may be sent on create and update. On create,
+when it is omitted, it is computed from expense_date: a date today or earlier
+is 'paid', a later date is 'upcoming'. On update, an omitted status keeps the
+stored value.
 """
 
 import sqlite3
@@ -27,11 +29,12 @@ _UPDATABLE_COLUMNS = {
     "expense_date": "expense_date",
     "payment_method": "payment_method",
     "notes": "notes",
+    "status": "status",
 }
 
 _SELECT_EXPENSE = """
     SELECT id, title, description, amount_cents, category, expense_date,
-           payment_method, notes, created_at
+           payment_method, notes, status, created_at
     FROM expenses
 """
 
@@ -70,6 +73,7 @@ def _row_to_expense(row) -> ExpenseOut:
         expense_date=row["expense_date"],
         payment_method=row["payment_method"],
         notes=row["notes"],
+        status=row["status"],
         created_at=row["created_at"],
     )
 
@@ -91,7 +95,7 @@ def create_expense(payload: ExpenseCreate, db: sqlite3.Connection = Depends(get_
             payload.expense_date.isoformat(),
             payload.payment_method,
             payload.notes,
-            _status_for(payload.expense_date),
+            payload.status or _status_for(payload.expense_date),
         ),
     )
     db.commit()
@@ -170,12 +174,6 @@ def update_expense(
     if not sent:
         return _row_to_expense(existing)
 
-    # Status follows the final date: the new one if sent, else the stored one.
-    if "expense_date" in sent:
-        final_day = sent["expense_date"]
-    else:
-        final_day = date.fromisoformat(existing["expense_date"])
-
     assignments: list[str] = []
     values: list = []
     for field, column in _UPDATABLE_COLUMNS.items():
@@ -190,9 +188,6 @@ def update_expense(
             value = ""
         assignments.append(f"{column} = ?")
         values.append(value)
-
-    assignments.append("status = ?")
-    values.append(_status_for(final_day))
 
     values.append(expense_id)
     sql = f"UPDATE expenses SET {', '.join(assignments)} WHERE id = ?"

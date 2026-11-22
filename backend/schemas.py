@@ -272,13 +272,16 @@ MAX_EXPENSE_AMOUNT = Decimal("10000000")
 # Payment methods an expense may record. None means "not recorded".
 PaymentMethod = Literal["cash", "upi", "card", "bank_transfer", "other"]
 
+# Expense status. Only these two values are accepted.
+ExpenseStatus = Literal["paid", "upcoming"]
+
 
 class ExpenseCreate(BaseModel):
     """Body for POST /expenses. Title, amount, category and date are required.
 
     `amount` is in INR (major units), for example 1250.00. The router stores
-    it as integer cents. Status is not accepted here: the router computes it
-    from expense_date.
+    it as integer cents. `status` is optional: when omitted, the router sets it
+    from expense_date (today or earlier is 'paid', later is 'upcoming').
     """
 
     title: str = Field(min_length=1, max_length=120)
@@ -292,6 +295,7 @@ class ExpenseCreate(BaseModel):
     expense_date: date
     payment_method: PaymentMethod | None = None
     notes: str | None = Field(default=None, max_length=1000)
+    status: ExpenseStatus | None = None
 
     @field_validator("title", "category", mode="before")
     @classmethod
@@ -313,8 +317,8 @@ class ExpenseUpdate(BaseModel):
     """Body for PUT /expenses/{id}. Every field is optional.
 
     Omitted fields are left unchanged. An explicit null is rejected for title,
-    amount, category and expense_date. It clears description, payment_method
-    and notes.
+    amount, category, expense_date and status. It clears description,
+    payment_method and notes.
     """
 
     title: str | None = Field(default=None, min_length=1, max_length=120)
@@ -329,9 +333,10 @@ class ExpenseUpdate(BaseModel):
     expense_date: date | None = None
     payment_method: PaymentMethod | None = None
     notes: str | None = Field(default=None, max_length=1000)
+    status: ExpenseStatus | None = None
 
     @field_validator(
-        "title", "amount", "category", "expense_date",
+        "title", "amount", "category", "expense_date", "status",
         mode="before",
     )
     @classmethod
@@ -371,6 +376,7 @@ class ExpenseOut(BaseModel):
     expense_date: date
     payment_method: PaymentMethod | None
     notes: str | None
+    status: ExpenseStatus
     created_at: str
 
     @field_serializer("amount")
