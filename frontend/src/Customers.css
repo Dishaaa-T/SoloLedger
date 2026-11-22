@@ -1,0 +1,122 @@
+
+.customers-page {
+  padding: 10px 0;
+  color: #202b50;
+}
+
+.customers-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 28px;
+}
+
+.customers-heading h1 {
+  margin: 0 0 8px;
+  font-size: 30px;
+}
+
+.customers-heading p {
+  color: #8792aa;
+}
+
+.customers-page button {
+  background: #6655e8;
+  color: white;
+  border: none;
+  padding: 11px 17px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.customer-form,
+.customer-list {
+  background: white;
+  padding: 25px;
+  border-radius: 15px;
+  margin-bottom: 25px;
+  border: 1px solid #e9eaf1;
+}
+
+.customer-form {
+  display: grid;
+  gap: 14px;
+}
+
+.customer-form h2,
+.customer-list h2 {
+  margin-top: 0;
+}
+
+.customer-form input,
+.customer-form textarea {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #dddfea;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.customer-form textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.customers-page .cancel-btn {
+  background: #e9eaf1;
+  color: #333;
+}
+
+.customer-table-wrap {
+  overflow-x: auto;
+}
+
+.customer-list table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.customer-list th,
+.customer-list td {
+  padding: 15px 12px;
+  border-bottom: 1px solid #eeeef3;
+  white-space: nowrap;
+}
+
+.customer-list th {
+  color: #78839b;
+  font-size: 13px;
+}
+
+.customers-page .edit-btn {
+  margin-right: 7px;
+  background: #e9e7ff;
+  color: #5544cc;
+}
+
+.customers-page .delete-btn {
+  background: #fff0f0;
+  color: #d34b58;
+}
+
+.customer-error {
+  background: #fff0f0;
+  color: #c33;
+  padding: 14px;
+  border-radius: 9px;
+  margin-bottom: 18px;
+}
+
+@media (max-width: 700px) {
+  .customers-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
