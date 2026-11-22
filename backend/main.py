@@ -16,6 +16,7 @@ from routers.dashboard import router as dashboard_router
 from routers.expenses import router as expenses_router
 from routers.forecast import router as forecast_router
 from routers.invoices import router as invoices_router
+from routers.payment_risk import router as payment_risk_router
 from routers.settings import router as settings_router
 from routers.simulator import router as simulator_router
 
@@ -48,6 +49,7 @@ app.include_router(dashboard_router)
 app.include_router(forecast_router)
 app.include_router(simulator_router)
 app.include_router(action_centre_router)
+app.include_router(payment_risk_router)
 
 
 @app.get("/")

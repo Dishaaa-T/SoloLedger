@@ -682,3 +682,41 @@ class ActionCentreOut(BaseModel):
     summary: ActionSummaryOut
     alerts: list[ActionAlertOut]
 
+
+
+# ---------------------------------------------------------------------------
+# Payment-risk prediction (ML)
+# ---------------------------------------------------------------------------
+
+class HistoricalStats(BaseModel):
+    """Paid-invoice history used for one payment-risk prediction.
+
+    Only paid invoices paid before the prediction date are counted.
+    avg_prior_amount is INR (major units), sent as a JSON number.
+    """
+
+    prior_invoice_count: int
+    prior_late_count: int
+    prior_late_pct: float
+    avg_delay_days: float
+    max_delay_days: float
+    avg_prior_amount: float
+
+
+class PaymentRiskOut(BaseModel):
+    """Payment-risk result for one client, as returned by the API.
+
+    probability_delayed is 0 to 1, or null when history is too short.
+    risk_category is "Unknown" in that case.
+    """
+
+    client_id: int
+    invoice_amount: float | None
+    probability_delayed: float | None
+    risk_category: Literal["Low", "Medium", "High", "Unknown"]
+    sufficient_history: bool
+    explanation: str
+    historical_stats: HistoricalStats
+    training_data_source: str | None
+    synthetic_data_warning: str | None
+

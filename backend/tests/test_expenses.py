@@ -5,7 +5,7 @@ Each test uses its own temporary database file, so the real
 sololedger.db is never touched.
 """
 
-from datetime import date
+from datetime import date, timedelta
 
 import pytest
 from fastapi.testclient import TestClient
@@ -233,9 +233,22 @@ def test_create_without_status_uses_date_rule(client):
     assert future["status"] == "upcoming"
 
 
-@pytest.mark.parametrize("value", ["pending", "PAID", "", None])
+@pytest.mark.parametrize("value", ["pending", "PAID", ""])
 def test_invalid_status_is_422(client, value):
     assert _create(client, status=value).status_code == 422
+
+
+def test_null_status_uses_date_rule(client):
+    # Yesterday is on or before today, so the rule gives 'paid'; tomorrow is
+    # after today, so it gives 'upcoming'.
+    past_day = TODAY - timedelta(days=1)
+    future_day = TODAY + timedelta(days=1)
+    past = _create(client, expense_date=past_day.isoformat(), status=None)
+    assert past.status_code == 201
+    assert past.json()["status"] == "paid"
+    future = _create(client, expense_date=future_day.isoformat(), status=None)
+    assert future.status_code == 201
+    assert future.json()["status"] == "upcoming"
 
 
 def test_put_status_only_changes_status_and_keeps_other_fields(client):

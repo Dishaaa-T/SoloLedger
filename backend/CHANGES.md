@@ -639,3 +639,44 @@ Expected: all tests pass, including the simulator, forecast, dashboard and earli
 
 
 
+---
+
+## Payment-risk prediction (ML)
+
+**Created:**
+- `backend/services/payment_features.py`: pure feature calculation with leakage guards (paid invoices only, paid before the prediction date, target invoice excluded).
+- `backend/services/payment_training.py`: synthetic invoice generator and RandomForest training. Saves `backend/models/payment_risk.joblib` with `{"model", "metadata"}`.
+- `backend/services/payment_prediction.py`: risk categories, cached model loading, and `predict_client_risk()`. Never trains a model.
+- `backend/routers/payment_risk.py`: endpoint `GET /clients/{client_id}/payment-risk`.
+- `backend/tests/test_payment_risk.py`: automated tests using a temporary database (the real `sololedger.db` is not touched).
+
+**Modified:**
+- `backend/schemas.py`: added `HistoricalStats` and `PaymentRiskOut`. Other models are unchanged.
+- `backend/main.py`: includes the payment-risk router next to the other routers.
+- `backend/requirements.txt`: added `scikit-learn` and `joblib`.
+
+**Endpoint:**
+
+| Method | Path | Success | Errors |
+|---|---|---|---|
+| GET | `/clients/{client_id}/payment-risk?invoice_amount=25000` | 200 | 404 client not found, 422 `invoice_amount` 0 or negative, 503 model file missing |
+
+- `invoice_amount` is optional, in INR. If it is omitted, the client's average prior invoice amount is used, and the explanation says so.
+- The prediction date is today. Only paid invoices paid before today are used.
+- Fewer than 3 prior paid invoices: `probability_delayed` is `null`, `risk_category` is `"Unknown"`, and the model is not loaded.
+- Categories: below 0.30 is Low, 0.30 up to 0.60 is Medium, 0.60 and above is High. The thresholds are in `RISK_THRESHOLDS` in `services/payment_prediction.py`.
+
+**Synthetic-data warning:** The model is trained on SYNTHETIC invoices, not on real client payments. Its probabilities and metrics do not show real-world accuracy. Every response with a model includes `training_data_source` ("synthetic") and `synthetic_data_warning`.
+
+**Training command (run from `backend`):**
+```
+venv\Scripts\python.exe -m services.payment_training
+```
+The API never trains. If the model file is missing, the endpoint returns 503 with this command in the message.
+
+**How to test with automated tests:**
+```
+venv\Scripts\python.exe -m pytest tests\test_payment_risk.py -q
+venv\Scripts\python.exe -m pytest tests -q
+```
+

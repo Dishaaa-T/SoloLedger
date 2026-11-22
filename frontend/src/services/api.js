@@ -29,6 +29,18 @@ export const getCashflow = (days) =>
 
 export const getActionCentre = () => api.get('/action-centre')
 
+export const getClientPaymentRisk = (clientId, invoiceAmount) =>
+  api.get(`/clients/${clientId}/payment-risk`, {
+    params: invoiceAmount ? { invoice_amount: invoiceAmount } : {},
+  })
+
+export const createClient = (data) => api.post('/clients', data)
+
+export const updateClient = (id, data) => api.put(`/clients/${id}`, data)
+
+export const deleteClient = (id) => api.delete(`/clients/${id}`)
+
+
 export const runWhatIf = (data) =>
   api.post('/simulator/what-if', data)
 
