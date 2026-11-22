@@ -5,6 +5,8 @@ import StatCard from '../components/StatCard'
 import LoadingState from '../components/LoadingState'
 import ErrorState from '../components/ErrorState'
 import EmptyState from '../components/EmptyState'
+import MonthlyPerformanceChart from '../components/MonthlyPerformanceChart'
+import ExpenseDonutChart from '../components/ExpenseDonutChart'
 
 const currencyFormatter = new Intl.NumberFormat('en-IN', {
   maximumFractionDigits: 2,
@@ -97,6 +99,15 @@ export default function Dashboard() {
           })}
         </div>
       )}
+
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-5">
+        <div className="xl:col-span-3">
+          <MonthlyPerformanceChart />
+        </div>
+        <div className="xl:col-span-2">
+          <ExpenseDonutChart />
+        </div>
+      </div>
     </div>
   )
 }
