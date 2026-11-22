@@ -1,197 +1,517 @@
-# SoloLedger
+# 💜 SoloLedger
 
-**A personal finance and cash-flow tool for solo freelancers.**
+### Your personal financial co-pilot for freelancing.
 
----
+**Manage smarter. Grow faster. Stay financially prepared.**
 
-## Introduction
+SoloLedger is a freelancer-focused financial management and cash-flow intelligence platform that brings clients, invoices, expenses, financial forecasting and payment-risk insights together in one place.
 
-Freelancing is rewarding, but the money side is often messy. You juggle invoices, clients who pay late, irregular income, and recurring expenses, and it's hard to know whether next month's cash will cover your costs.
-
-SoloLedger puts all of that in one place. It helps you see who owes you money, where your money goes, and what your cash position is likely to look like in the coming weeks, so you can act before problems show up.
+Instead of simply tracking past transactions, SoloLedger helps freelancers understand their current financial position, anticipate potential cash-flow problems and make more informed business decisions.
 
 ---
 
-## How it helps freelancers
+<p align="center">
 
-- **Know who owes you money.** See every client's invoices at a glance and which ones are overdue. An invoice is marked overdue automatically once its due date passes.
-- **Understand where your money goes.** Track expenses by category and payment method (cash, UPI, card, bank transfer, or other), so your business costs are visible instead of scattered.
-- **See trouble coming.** A 30/60/90-day cash forecast flags negative-balance risk before it happens.
-- **Plan for the unexpected.** Run "what if" scenarios: an invoice paid late, an unexpected expense, or some extra income.
-- **Judge client payment risk.** Each client gets a payment-risk score to help you decide how much to trust their payment timing.
-- **Focus on what matters.** A prioritised Action Centre collects alerts so you know what to handle first.
+![Python](https://img.shields.io/badge/Python-3.14-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![SQLite](https://img.shields.io/badge/SQLite-Database-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
+![Scikit Learn](https://img.shields.io/badge/Scikit--Learn-ML-F7931E?style=for-the-badge&logo=scikitlearn&logoColor=white)
 
----
-
-## Features
-
-### Clients and invoices
-- Manage clients and their invoices.
-- Invoices have clear statuses: **pending**, **paid**, and **overdue**.
-- Mark an invoice as paid with a single action.
-
-### Expenses
-- Record business expenses by **category**.
-- Choose a **payment method** for each expense.
-- Mark expenses as **paid** or **upcoming**.
-
-### Cash position
-- Enter your current balance manually.
-- View a **30/60/90-day cash forecast** based on your balance, invoices, and expenses.
-
-### What-if simulator
-- Test scenarios such as **delayed invoices**, **unexpected expenses**, and **extra income**.
-- See how each scenario would change your projected cash position.
-
-### Payment risk
-- Get a **per-client payment-risk prediction** powered by a RandomForest model.
-- The model is trained on **synthetic data**, so treat its output as **indicative**, not authoritative.
-
-### Action Centre
-- Rule-based alerts highlight issues that need attention.
-- Alerts are **sorted by priority**, so the most important items come first.
-
-### Dashboard summary
-- A quick overview of your key numbers in one view.
+</p>
 
 ---
 
-## Tech stack
+## 📌 Table of Contents
 
-**Backend**
-- Python
-- FastAPI
-- Uvicorn
-- SQLite (the database file is created automatically)
-- scikit-learn
-- joblib
-- Money is stored as **integer cents** to avoid floating-point rounding errors.
-
-**Frontend**
-- React 19
-- Vite
-- react-router-dom
-- Tailwind CSS
-- recharts
-- axios
+- [The Problem](#-the-problem)
+- [Our Solution](#-our-solution)
+- [Key Features](#-key-features)
+- [System Architecture](#-system-architecture)
+- [Financial Intelligence](#-financial-intelligence)
+- [Machine Learning](#-machine-learning-payment-risk)
+- [Technology Stack](#-technology-stack)
+- [Getting Started](#-getting-started)
+- [API Reference](#-api-reference)
+- [Limitations](#-limitations)
 
 ---
 
-## Getting started (Windows)
+## 🎯 The Problem
+
+Freelancers often manage their finances using disconnected spreadsheets, messaging apps and manual records.
+
+This creates several challenges:
+
+- **Irregular income:** Unpredictable client payments make financial planning difficult.
+- **Delayed payments:** Freelancers struggle to track overdue invoices and identify unreliable payment patterns.
+- **Expense visibility:** Business expenses are scattered across different payment methods and records.
+- **Cash-flow uncertainty:** It is difficult to determine whether upcoming income will cover future expenses.
+- **Reactive decisions:** Financial problems are often noticed only after they affect the business.
+
+Freelancers need more than an expense tracker. They need a way to understand and anticipate their financial position.
+
+## 💡 Our Solution
+
+SoloLedger acts as a lightweight financial co-pilot for independent professionals.
+
+It combines financial record management, deterministic financial analysis, cash-flow forecasting and a machine-learning-based payment-risk feature.
+
+With SoloLedger, freelancers can:
+
+- Track clients, invoices and payments.
+- Monitor business expenses.
+- Understand income, expenses and available cash.
+- Forecast their financial position for the next 30, 60 or 90 days.
+- Simulate hypothetical financial scenarios.
+- Identify clients with potential payment delays.
+- Receive prioritised financial alerts.
+
+---
+
+## ✨ Key Features
+
+### 1. 📊 Smart Financial Dashboard
+
+A consolidated view of business finances.
+
+- Total income and expenses.
+- Net profit.
+- Pending and overdue payments.
+- Available cash balance.
+- Monthly financial performance visualisations.
+- Expense category breakdown.
+
+### 2. 👥 Client Management
+
+- Add, view, update and delete clients.
+- Maintain client contact information.
+- View invoices associated with clients.
+- Access individual client payment-risk predictions.
+
+### 3. 🧾 Invoice Management
+
+- Create and manage invoices.
+- Associate invoices with clients.
+- Track pending, paid and overdue statuses.
+- Mark invoices as paid.
+- Automatically identify overdue invoices based on due dates.
+
+### 4. 💸 Expense Management
+
+- Record business expenses.
+- Categorise expenses.
+- Track payment methods such as cash, UPI, card and bank transfer.
+- Mark expenses as paid or upcoming.
+- Filter expenses by category and date.
+
+### 5. 📈 Predictive Cash-Flow Forecasting
+
+Understand your projected financial position before problems arise.
+
+- 30-day, 60-day and 90-day forecasts.
+- Expected incoming payments.
+- Upcoming scheduled expenses where supported by the data.
+- Projected closing cash balance.
+- Identification of potential negative cash-flow periods.
+
+### 6. 🔮 What-If Financial Simulator
+
+Test hypothetical financial scenarios without changing actual financial records.
+
+Simulate:
+
+- Delayed client payments.
+- Unexpected expenses.
+- Additional hypothetical income.
+
+Compare baseline and simulated cash-flow projections to understand how different situations could affect your finances.
+
+### 7. 🤖 ML-Based Payment Risk Prediction
+
+A client-level payment-risk prediction feature powered by a RandomForestClassifier.
+
+- Analyses historical payment behaviour.
+- Uses previous payment delays and invoice amounts as input features.
+- Classifies predicted payment risk into Low, Medium and High categories.
+- Handles insufficient payment history without inventing a prediction.
+
+**Note:** The current model is trained on synthetic data. Its predictions are indicative and should not be treated as authoritative financial assessments.
+
+### 8. 🚨 Financial Action Centre
+
+A centralised place for important financial alerts.
+
+- Overdue invoice alerts.
+- Pending payment insights.
+- Low cash-balance warnings.
+- Negative cash-flow risk alerts.
+- Expense trend insights.
+- Priority-based alert organisation.
+- Suggested actions to help freelancers decide what to address first.
+
+---
+
+## 🏗️ System Architecture
+
+SoloLedger follows a frontend-backend architecture. The React frontend communicates with the FastAPI backend through REST APIs. The backend handles business logic, financial calculations, database operations and machine-learning predictions.
+
+### Architecture Diagram
+
+```mermaid
+flowchart TB
+    U["Freelancer / User"]
+
+    subgraph FE["Frontend Layer"]
+        UI["React 19 + Vite"]
+        PAGES["Dashboard · Clients · Invoices · Expenses"]
+        VIS["Financial Charts and Visualisations"]
+        AX["Axios API Client"]
+        UI --> PAGES
+        UI --> VIS
+        PAGES --> AX
+        VIS --> AX
+    end
+
+    subgraph BE["Backend Layer — FastAPI"]
+        API["REST API Endpoints"]
+        ROUTES["API Routers"]
+        SERVICES["Financial Services"]
+        FORECAST["Cash-Flow Forecast Engine"]
+        SIM["What-If Simulation Engine"]
+        ACTION["Rule-Based Action Centre"]
+        RISK["Payment-Risk Prediction Service"]
+
+        API --> ROUTES
+        ROUTES --> SERVICES
+        SERVICES --> FORECAST
+        SERVICES --> SIM
+        SERVICES --> ACTION
+        SERVICES --> RISK
+    end
+
+    subgraph ML["Machine Learning Layer"]
+        FEATURES["Payment Behaviour Feature Extraction"]
+        MODEL["RandomForestClassifier"]
+        ARTIFACT["Joblib Model Artifact"]
+        FEATURES --> MODEL
+        ARTIFACT --> MODEL
+    end
+
+    subgraph DATA["Data Layer"]
+        DB[("SQLite Database")]
+        TABLES["Clients · Invoices · Expenses · Settings"]
+        DB --- TABLES
+    end
+
+    U --> UI
+    AX <-->|"HTTP / JSON"| API
+    SERVICES <--> DB
+    RISK --> FEATURES
+    MODEL --> RISK
+```
+
+### How the system works
+
+| Layer | Responsibility |
+|---|---|
+| Frontend | Displays dashboards, financial records, charts and predictions. |
+| API layer | Handles HTTP requests and responses through FastAPI. |
+| Business logic | Performs financial calculations, forecasting and scenario analysis. |
+| ML layer | Generates client payment-risk predictions. |
+| Database | Stores clients, invoices, expenses and settings. |
+
+**Two complementary intelligence approaches:**
+
+- **Rule-based intelligence:** Cash-flow forecasting, scenario simulation and prioritised financial alerts.
+- **Machine learning:** Random Forest-based client payment-risk prediction.
+
+This combination allows SoloLedger to provide explainable financial calculations alongside a data-driven predictive feature.
+
+---
+
+## 🧠 Financial Intelligence
+
+SoloLedger goes beyond basic financial record management through four core intelligence modules.
+
+| Module | Purpose | Approach |
+|---|---|---|
+| Smart Dashboard | Understand current financial position | Financial calculations |
+| Cash-Flow Forecast | Estimate future cash position | Rule-based forecasting |
+| What-If Simulator | Evaluate hypothetical financial scenarios | Scenario-based calculations |
+| Financial Action Centre | Identify and prioritise financial risks | Rule-based analysis |
+
+The platform is designed to help freelancers move from reactive financial tracking to proactive financial planning.
+
+---
+
+## 🤖 Machine Learning – Payment Risk
+
+The payment-risk feature uses a **RandomForestClassifier** to estimate the likelihood of delayed client payments.
+
+### Model inputs
+
+The model uses features derived from historical paid invoices, including:
+
+- Previous invoice count.
+- Previous late-payment count.
+- Historical late-payment percentage.
+- Average payment delay.
+- Maximum payment delay.
+- Average historical invoice amount.
+- Current invoice amount.
+
+### Training approach
+
+- Synthetic invoice-payment records are used to generate training data.
+- A fixed random seed ensures reproducibility.
+- The model is evaluated using a train/test split.
+- The trained model is saved using Joblib.
+- Historical client data is used to calculate prediction features.
+
+### Prediction behaviour
+
+| Risk category | Probability |
+|---|---|
+| Low | Below 30% |
+| Medium | 30% to below 60% |
+| High | 60% and above |
+| Unknown | Insufficient payment history |
+
+Clients with fewer than three previous paid invoices are treated as having insufficient history. No probability is displayed when there is no usable history.
+
+**Important:** Synthetic training data does not establish real-world predictive accuracy. The model needs validation against real, appropriately labelled payment histories before its predictions can be relied upon.
+
+---
+
+## 🛠️ Technology Stack
+
+### Backend
+
+| Technology | Usage |
+|---|---|
+| Python | Core backend language |
+| FastAPI | REST API framework |
+| Uvicorn | ASGI server |
+| SQLite | Relational database |
+| Pydantic | Request and response validation |
+| scikit-learn | Machine learning |
+| Joblib | Model serialisation |
+
+### Frontend
+
+| Technology | Usage |
+|---|---|
+| React 19 | User interface |
+| Vite | Frontend build tooling |
+| React Router | Navigation |
+| Tailwind CSS | Styling |
+| Recharts | Data visualisation |
+| Axios | API communication |
+
+### Data and Financial Accuracy
+
+- SQLite stores the application's financial records.
+- Monetary values are stored as integer cents to avoid floating-point rounding errors.
+- Financial calculations use actual stored records rather than hardcoded dashboard values.
+
+---
+
+## 🚀 Getting Started
+
+Follow these instructions to run SoloLedger locally on Windows.
 
 ### Prerequisites
 
 - [Python 3](https://www.python.org/downloads/)
-- [Node.js](https://nodejs.org/) (includes npm)
+- [Node.js](https://nodejs.org/) and npm
+- Git (optional, for cloning the repository)
 
-### 1. Start the backend
+### 1. Clone the repository
 
-Open a terminal (Command Prompt or PowerShell) in the project folder and run:
+```bash
+git clone <YOUR_REPOSITORY_URL>
+cd SoloLedger
+```
+
+### 2. Start the backend
+
+Open a terminal in the project root.
 
 ```bat
 cd backend
+```
+
+Create a virtual environment:
+
+```bat
 python -m venv venv
+```
+
+Activate it:
+
+```bat
 venv\Scripts\activate
+```
+
+Install dependencies:
+
+```bat
 pip install -r requirements.txt
+```
+
+Start the FastAPI server:
+
+```bat
 uvicorn main:app --reload
 ```
 
-The API will be available at **http://127.0.0.1:8000**.
+The backend will be available at:
 
-*Optional:* To initialise the database without starting the server, run:
+**http://127.0.0.1:8000**
 
-```bat
-python database.py
-```
+### 3. Start the frontend
 
-### 2. Start the frontend
-
-Open a **second** terminal in the project folder and run:
+Open a second terminal in the project root.
 
 ```bat
 cd frontend
+```
+
+Install frontend dependencies:
+
+```bat
 npm install
+```
+
+Start the development server:
+
+```bat
 npm run dev
 ```
 
-The app will usually be available at **http://localhost:5173**.
+The frontend will usually be available at:
 
-*Optional:* If your API runs somewhere other than the default, create a `.env` file in the `frontend` folder and set:
+**http://localhost:5173**
+
+### 4. Configure the API URL (Optional)
+
+If your backend runs at a different address, create a `.env` file inside the `frontend` directory:
 
 ```env
 VITE_API_BASE_URL=http://127.0.0.1:8000
 ```
 
-If `VITE_API_BASE_URL` is not set, the frontend uses `http://127.0.0.1:8000`.
+If this variable is not configured, the frontend uses `http://127.0.0.1:8000` by default.
 
-### API documentation
+### 5. Access API documentation
 
-With the backend running, interactive API docs are available at **http://127.0.0.1:8000/docs**.
+FastAPI automatically provides interactive API documentation.
 
-### Other frontend scripts
+- Swagger UI: http://127.0.0.1:8000/docs
+- ReDoc: http://127.0.0.1:8000/redoc
 
-The frontend also includes `build`, `lint`, and `preview` scripts, run with `npm run build`, `npm run lint`, and `npm run preview`.
+### 6. Other frontend commands
+
+```bash
+npm run build
+npm run lint
+npm run preview
+```
 
 ---
 
-## API overview
+## 🔌 API Reference
+
+SoloLedger exposes REST endpoints for managing financial records and accessing intelligence features.
+
+### Health Check
 
 | Method | Endpoint | Description |
-| --- | --- | --- |
+|---|---|---|
 | GET | `/` | Root / health check |
-| GET | `/clients` | List clients |
+
+### Clients
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/clients` | List all clients |
 | POST | `/clients` | Create a client |
-| GET | `/clients/{id}` | Get a client |
+| GET | `/clients/{id}` | Retrieve a client |
 | PUT | `/clients/{id}` | Update a client |
 | DELETE | `/clients/{id}` | Delete a client |
-| GET | `/clients/{id}/payment-risk` | Get a client's payment-risk prediction |
-| GET | `/invoices` | List invoices (filters: `status`, `client_id`) |
+| GET | `/clients/{id}/payment-risk` | Predict client payment risk |
+
+### Invoices
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/invoices` | List invoices |
 | POST | `/invoices` | Create an invoice |
-| GET | `/invoices/{id}` | Get an invoice |
+| GET | `/invoices/{id}` | Retrieve an invoice |
 | PUT | `/invoices/{id}` | Update an invoice |
 | DELETE | `/invoices/{id}` | Delete an invoice |
 | POST | `/invoices/{id}/mark-paid` | Mark an invoice as paid |
-| GET | `/expenses` | List expenses (filters: `category`, `start_date`, `end_date`) |
+
+Supported list filters include `status` and `client_id`.
+
+### Expenses
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/expenses` | List expenses |
 | POST | `/expenses` | Create an expense |
-| GET | `/expenses/{id}` | Get an expense |
+| GET | `/expenses/{id}` | Retrieve an expense |
 | PUT | `/expenses/{id}` | Update an expense |
 | DELETE | `/expenses/{id}` | Delete an expense |
-| GET | `/settings` | Get settings |
-| GET | `/settings/balance` | Get the current balance |
-| PUT | `/settings/balance` | Set the current balance |
-| GET | `/dashboard/summary` | Get the dashboard summary |
-| GET | `/forecast/cashflow` | Get the 30/60/90-day cash forecast |
-| POST | `/simulator/what-if` | Run a what-if scenario |
-| GET | `/action-centre` | Get prioritised alerts |
+
+Supported list filters include `category`, `start_date` and `end_date`.
+
+### Settings and Dashboard
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/settings` | Retrieve settings |
+| GET | `/settings/balance` | Get current cash balance |
+| PUT | `/settings/balance` | Update current cash balance |
+| GET | `/dashboard/summary` | Retrieve dashboard summary |
+
+### Financial Intelligence
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/forecast/cashflow` | Generate cash-flow forecast |
+| POST | `/simulator/what-if` | Run a hypothetical financial scenario |
+| GET | `/action-centre` | Retrieve prioritised financial alerts |
 
 ---
 
-## Sample data
+## ⚠️ Limitations and Future Scope
 
-SoloLedger seeds a few example clients so you can explore the app right away:
+SoloLedger is an early-stage project. Some limitations are intentional:
 
-- Brightwave Labs
-- Northpine Creative
-- Maple & Thread
-- Sam Okafor
-
-**All data in the project is fictional.**
-
----
-
-## Project structure
-
-- `backend/` - The FastAPI app: API routes, database setup, and the payment-risk model.
-- `frontend/` - The React app (built with Vite) that provides the user interface.
+- The payment-risk model currently uses synthetic training data.
+- Payment-risk predictions are indicative and require real-world validation.
+- Current cash balance is entered manually through the settings API.
+- There is no dedicated settings page yet.
+- Cash-flow projections depend on the available invoice and expense information.
+- The application does not connect directly to bank accounts or process payments.
+- It does not provide automated tax filing or professional financial advice.
 
 ---
 
-## Notes / limitations
+## 🌱 Why SoloLedger?
 
-- The payment-risk model is trained on **synthetic data**, so its predictions are indicative only.
-- The balance is currently set through the API (`PUT /settings/balance`); there is no dedicated settings page yet.
-- This is an early-stage project and may change significantly.
+Freelancers deserve financial tools that are designed around the way they actually work.
+
+SoloLedger aims to bring financial visibility, forecasting and actionable insights into one accessible workspace — helping independent professionals spend less time worrying about their finances and more time growing their business.
 
 ---
 
+<p align="center">
 
+**SoloLedger – Manage smarter. Grow faster.**
+
+Built with 💜 for independent professionals and freelancers.
+
+</p>
