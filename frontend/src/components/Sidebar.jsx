@@ -24,9 +24,7 @@ function SidebarContent({ onNavigate, onClose }) {
   return (
     <div className="flex h-full w-60 flex-col bg-white">
       <div className="flex items-center gap-3 px-6 py-6">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 text-lg font-bold text-white">
-          B
-        </div>
+        <img src="/logo.svg" alt="" aria-hidden="true" className="h-9 w-9 shrink-0" />
         <span className="text-lg font-semibold text-gray-900">SoloLedger</span>
         {onClose && (
           <button

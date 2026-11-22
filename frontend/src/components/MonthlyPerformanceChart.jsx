@@ -5,8 +5,6 @@ import LoadingState from './LoadingState'
 import ErrorState from './ErrorState'
 import EmptyState from './EmptyState'
 
-const COLUMN_WIDTH_PX = 64
-
 const currencyFormatter = new Intl.NumberFormat('en-IN', {
   maximumFractionDigits: 2,
 })
@@ -78,32 +76,40 @@ export default function MonthlyPerformanceChart() {
               </span>
             </div>
 
-            <div className="overflow-x-auto">
-              <div
-                className="flex min-w-full gap-2"
-                style={{ width: `${data.months.length * COLUMN_WIDTH_PX}px` }}
-              >
-                {data.months.map((month) => (
-                  <div
-                    key={month.key}
-                    className="flex w-16 shrink-0 flex-col items-center"
-                  >
-                    <div className="flex h-48 w-full items-end justify-center gap-1">
-                      <div
-                        className="w-3 rounded-t-md bg-emerald-500 transition-[height] duration-500"
-                        style={{ height: `${barHeight(month.income, data.maxValue)}%` }}
-                        title={`Income: ${formatINR(month.income)}`}
-                      />
-                      <div
-                        className="w-3 rounded-t-md bg-indigo-500 transition-[height] duration-500"
-                        style={{ height: `${barHeight(month.expenses, data.maxValue)}%` }}
-                        title={`Expenses: ${formatINR(month.expenses)}`}
-                      />
+            <div className="space-y-4">
+              {data.months.map((month) => (
+                <div key={month.key} className="flex items-center gap-3">
+                  <span className="w-20 shrink-0 text-xs font-medium text-slate-600 sm:w-24">
+                    {month.label}
+                  </span>
+                  <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                    <div className="flex items-center gap-2">
+                      <div className="relative h-3 flex-1 rounded-full bg-slate-100 overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-emerald-500 transition-[width] duration-500"
+                          style={{ width: `${barHeight(month.income, data.maxValue)}%` }}
+                          title={`Income: ${formatINR(month.income)}`}
+                        />
+                      </div>
+                      <span className="w-24 shrink-0 text-right text-xs tabular-nums text-slate-600">
+                        {formatINR(month.income)}
+                      </span>
                     </div>
-                    <span className="mt-2 text-xs text-slate-500">{month.label}</span>
+                    <div className="flex items-center gap-2">
+                      <div className="relative h-3 flex-1 rounded-full bg-slate-100 overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-indigo-500 transition-[width] duration-500"
+                          style={{ width: `${barHeight(month.expenses, data.maxValue)}%` }}
+                          title={`Expenses: ${formatINR(month.expenses)}`}
+                        />
+                      </div>
+                      <span className="w-24 shrink-0 text-right text-xs tabular-nums text-slate-600">
+                        {formatINR(month.expenses)}
+                      </span>
+                    </div>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           </>
         )}

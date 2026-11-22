@@ -7,6 +7,7 @@ import ErrorState from '../components/ErrorState'
 import EmptyState from '../components/EmptyState'
 import MonthlyPerformanceChart from '../components/MonthlyPerformanceChart'
 import ExpenseDonutChart from '../components/ExpenseDonutChart'
+import MonthlyCashFlowChart from '../components/MonthlyCashFlowChart'
 
 const currencyFormatter = new Intl.NumberFormat('en-IN', {
   maximumFractionDigits: 2,
@@ -68,6 +69,8 @@ export default function Dashboard() {
           <IndianRupee className="h-8 w-8 md:h-10 md:w-10" aria-hidden="true" />
         </div>
       </section>
+
+      <MonthlyCashFlowChart />
 
       {status === 'loading' && <LoadingState />}
 
